@@ -5,10 +5,10 @@ const Button = ({ children, onClick, type = 'button', variant = 'primary', class
     const baseStyles = "px-6 py-2.5 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 outline-none focus:ring-2 focus:ring-gold/50";
 
     const variants = {
-        primary: "bg-gold-gradient text-white hover:shadow-gold transform hover:-translate-y-0.5 active:scale-95 shadow-md",
-        outline: "border-2 border-gold text-gold hover:bg-gold/5 transform hover:-translate-y-0.5 active:scale-95",
-        ghost: "text-mystic hover:bg-mystic/5 transition-colors",
-        glass: "glass-morphism text-mystic hover:border-gold/50 hover:bg-white/90 shadow-sm"
+        primary: "bg-gold-gradient text-mystic hover:shadow-gold transform hover:-translate-y-0.5 active:scale-95",
+        outline: "border-2 border-gold text-gold hover:bg-gold/10 transform hover:-translate-y-0.5 active:scale-95",
+        ghost: "text-gold hover:bg-gold/5 transition-colors",
+        glass: "glass-morphism text-white hover:border-gold/50 hover:bg-white/10"
     };
 
     return (

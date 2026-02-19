@@ -24,7 +24,7 @@ const Navbar = () => {
     ];
 
     return (
-        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-3 bg-white/90 backdrop-blur-lg border-b border-gold/20 shadow-sm' : 'py-6 bg-transparent'}`}>
+        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-3 bg-mystic/80 backdrop-blur-lg border-b border-gold/20 shadow-lg' : 'py-6 bg-transparent'}`}>
             <div className="container mx-auto px-6 flex items-center justify-between">
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
@@ -46,7 +46,7 @@ const Navbar = () => {
                         <Link
                             key={link.path}
                             to={link.path}
-                            className={`relative text-sm font-medium tracking-wide transition-colors hover:text-gold ${location.pathname === link.path ? 'text-gold' : 'text-mystic'}`}
+                            className={`relative text-sm font-medium tracking-wide transition-colors hover:text-gold ${location.pathname === link.path ? 'text-gold' : 'text-white/80'}`}
                         >
                             {link.name}
                             {location.pathname === link.path && (
@@ -83,7 +83,7 @@ const Navbar = () => {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-white border-b border-gold/10 overflow-hidden shadow-xl"
+                        className="md:hidden bg-mystic-dark border-b border-gold/10 overflow-hidden"
                     >
                         <div className="flex flex-col p-6 gap-6">
                             {navLinks.map((link) => (
@@ -91,7 +91,7 @@ const Navbar = () => {
                                     key={link.path}
                                     to={link.path}
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className={`text-lg font-medium ${location.pathname === link.path ? 'text-gold' : 'text-mystic'}`}
+                                    className={`text-lg font-medium ${location.pathname === link.path ? 'text-gold' : 'text-white/80'}`}
                                 >
                                     {link.name}
                                 </Link>

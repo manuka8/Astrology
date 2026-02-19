@@ -27,9 +27,9 @@ const Home = () => {
             <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
                 {/* Background Overlay */}
                 <div className="absolute inset-0 bg-mystic-gradient z-0"></div>
-                <div className="absolute inset-0 opacity-20 z-0">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/20 rounded-full blur-[120px] animate-pulse"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]"></div>
+                <div className="absolute inset-0 opacity-30 z-0">
+                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold/10 rounded-full blur-[120px] animate-pulse"></div>
+                    <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px]"></div>
                 </div>
 
                 <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -41,11 +41,11 @@ const Home = () => {
                         <span className="inline-block px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm font-medium mb-6">
                             ✨ Discover Your Cosmic Path
                         </span>
-                        <h1 className="text-5xl md:text-7xl font-bold font-outfit leading-tight mb-6 text-mystic">
+                        <h1 className="text-5xl md:text-7xl font-bold font-outfit leading-tight mb-6">
                             Discover Your <br />
                             <span className="gold-text-gradient">Destiny</span> in Stars
                         </h1>
-                        <p className="text-mystic/70 text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
+                        <p className="text-white/70 text-lg md:text-xl leading-relaxed mb-10 max-w-xl">
                             Unlock the secrets of the universe with Astro.lk. Get personalized horoscope readings and professional spiritual guidance to navigate your life's journey.
                         </p>
                         <div className="flex flex-wrap gap-4">
@@ -87,12 +87,12 @@ const Home = () => {
             </section>
 
             {/* Horoscope Preview Section */}
-            <section className="py-24 bg-mystic-light">
+            <section className="py-24 bg-mystic-dark">
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold font-outfit mb-4 text-mystic">Daily Horoscope</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold font-outfit mb-4">Daily Horoscope</h2>
                         <div className="h-1 w-20 bg-gold mx-auto rounded-full mb-6"></div>
-                        <p className="text-mystic/60">Choose your sign to see what the stars have in store for you today.</p>
+                        <p className="text-white/60">Choose your sign to see what the stars have in store for you today.</p>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -104,10 +104,10 @@ const Home = () => {
                                 transition={{ delay: idx * 0.1 }}
                                 viewport={{ once: true }}
                             >
-                                <Card className="text-center group cursor-pointer hover:border-gold/50 bg-white">
+                                <Card className="text-center group cursor-pointer hover:border-gold/50">
                                     <span className="text-5xl mb-4 block group-hover:scale-110 transition-transform duration-300">{h.icon}</span>
                                     <h4 className="text-gold font-bold mb-1">{h.sign}</h4>
-                                    <p className="text-mystic/40 text-[10px] uppercase tracking-widest leading-none mt-2">{h.date}</p>
+                                    <p className="text-white/40 text-[10px] uppercase tracking-widest">{h.date}</p>
                                 </Card>
                             </motion.div>
                         ))}
@@ -116,13 +116,13 @@ const Home = () => {
             </section>
 
             {/* Services Section */}
-            <section className="py-24 relative overflow-hidden bg-white">
+            <section className="py-24 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
                         <div className="text-left">
-                            <h2 className="text-3xl md:text-5xl font-bold font-outfit mb-4 text-mystic">Our Sacred Services</h2>
-                            <p className="text-mystic/60 max-w-xl">We provide professional astrology and spiritual services tailored to help you find clarity and balance.</p>
+                            <h2 className="text-3xl md:text-5xl font-bold font-outfit mb-4">Our Sacred Services</h2>
+                            <p className="text-white/60 max-w-xl">We provide professional astrology and spiritual services tailored to help you find clarity and balance.</p>
                         </div>
                         <Button variant="outline">View All Services</Button>
                     </div>
@@ -136,12 +136,12 @@ const Home = () => {
                                 transition={{ delay: idx * 0.1 }}
                                 viewport={{ once: true }}
                             >
-                                <Card className="h-full flex flex-col items-start gap-4 bg-mystic-light/30 border-none shadow-premium">
+                                <Card className="h-full flex flex-col items-start gap-4">
                                     <div className="p-3 bg-gold/10 rounded-2xl">
                                         {s.icon}
                                     </div>
-                                    <h3 className="text-xl font-bold text-mystic group-hover:text-gold transition-colors">{s.title}</h3>
-                                    <p className="text-mystic/50 text-sm leading-relaxed mb-4">
+                                    <h3 className="text-xl font-bold text-white group-hover:text-gold transition-colors">{s.title}</h3>
+                                    <p className="text-white/50 text-sm leading-relaxed mb-4">
                                         {s.desc}
                                     </p>
                                     <button className="text-gold text-sm font-semibold flex items-center gap-2 hover:gap-3 transition-all mt-auto">
@@ -155,36 +155,36 @@ const Home = () => {
             </section>
 
             {/* Stats/Highlight Section */}
-            <section className="py-20 bg-white border-y border-gold/10">
+            <section className="py-20 glass-morphism border-y border-gold/10">
                 <div className="container mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                     <div>
                         <h4 className="text-4xl font-bold font-outfit gold-text-gradient mb-2">25K+</h4>
-                        <p className="text-mystic/40 text-sm tracking-widest uppercase">Happy Seekers</p>
+                        <p className="text-white/50 text-sm tracking-widest uppercase">Happy Seekers</p>
                     </div>
                     <div>
                         <h4 className="text-4xl font-bold font-outfit gold-text-gradient mb-2">50+</h4>
-                        <p className="text-mystic/40 text-sm tracking-widest uppercase">Expert Astrologers</p>
+                        <p className="text-white/50 text-sm tracking-widest uppercase">Expert Astrologers</p>
                     </div>
                     <div>
                         <h4 className="text-4xl font-bold font-outfit gold-text-gradient mb-2">10M+</h4>
-                        <p className="text-mystic/40 text-sm tracking-widest uppercase">Predictions Made</p>
+                        <p className="text-white/50 text-sm tracking-widest uppercase">Predictions Made</p>
                     </div>
                     <div>
                         <h4 className="text-4xl font-bold font-outfit gold-text-gradient mb-2">99%</h4>
-                        <p className="text-mystic/40 text-sm tracking-widest uppercase">Accuracy Rate</p>
+                        <p className="text-white/50 text-sm tracking-widest uppercase">Accuracy Rate</p>
                     </div>
                 </div>
             </section>
 
             {/* CTA Section */}
             <section className="py-24 container mx-auto px-6">
-                <div className="gold-border-gradient rounded-[40px] p-12 md:p-20 text-center relative overflow-hidden group shadow-premium bg-white">
+                <div className="gold-border-gradient rounded-[40px] p-12 md:p-20 text-center relative overflow-hidden group">
                     <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                     <div className="relative z-10">
-                        <h2 className="text-4xl md:text-6xl font-bold font-outfit mb-8 max-w-3xl mx-auto leading-tight text-mystic">
+                        <h2 className="text-4xl md:text-6xl font-bold font-outfit mb-8 max-w-3xl mx-auto leading-tight">
                             Ready to Begin Your <span className="gold-text-gradient">Celestial</span> Journey?
                         </h2>
-                        <p className="text-mystic/60 text-lg mb-12 max-w-2xl mx-auto">
+                        <p className="text-white/70 text-lg mb-12 max-w-2xl mx-auto">
                             Join thousands of others who have found their path through the stars. Your personal reading is just a few clicks away.
                         </p>
                         <div className="flex flex-wrap justify-center gap-6">

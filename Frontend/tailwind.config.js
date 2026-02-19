@@ -13,19 +13,18 @@ export default {
           dark: '#996515',
         },
         'mystic': {
-          DEFAULT: '#1A1D2E',
-          light: '#F5F7FA',
-          dark: '#0B0D17',
+          DEFAULT: '#0B0D17',
+          light: '#1A1D2E',
+          dark: '#05060A',
         }
       },
       backgroundImage: {
         'gold-gradient': 'linear-gradient(to right, #996515, #D4AF37, #F8E08E, #D4AF37, #996515)',
-        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.5))',
-        'mystic-gradient': 'radial-gradient(circle at center, #FFFFFF 0%, #F5F7FA 100%)',
+        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+        'mystic-gradient': 'radial-gradient(circle at center, #1A1D2E 0%, #0B0D17 100%)',
       },
       boxShadow: {
-        'gold': '0 4px 15px rgba(212, 175, 55, 0.15)',
-        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+        'gold': '0 0 15px rgba(212, 175, 55, 0.3)',
       },
       backdropBlur: {
         xs: '2px',
