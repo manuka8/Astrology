@@ -34,8 +34,8 @@ const Contact = () => {
         <div className="pt-32 pb-24">
             <div className="container mx-auto px-6">
                 <div className="text-center mb-20">
-                    <h1 className="text-4xl md:text-6xl font-bold font-outfit mb-6">Contact <span className="gold-text-gradient">Our Experts</span></h1>
-                    <p className="text-white/60 max-w-xl mx-auto">Have questions about your reading or need personalized guidance? Our spiritual advisors are here to help.</p>
+                    <h1 className="text-4xl md:text-6xl font-bold font-outfit mb-6 text-mystic">Contact <span className="gold-text-gradient">Our Experts</span></h1>
+                    <p className="text-mystic/60 max-w-xl mx-auto">Have questions about your reading or need personalized guidance? Our spiritual advisors are here to help.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -48,13 +48,13 @@ const Contact = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: idx * 0.1 }}
                             >
-                                <Card className="flex items-center gap-6 border-white/5 group">
+                                <Card className="flex items-center gap-6 border-gold/10 group bg-white shadow-sm">
                                     <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                                         {info.icon}
                                     </div>
                                     <div>
                                         <p className="text-gold/60 text-xs uppercase tracking-widest font-bold mb-1">{info.label}</p>
-                                        <p className="text-white font-medium">{info.value}</p>
+                                        <p className="text-mystic font-medium">{info.value}</p>
                                     </div>
                                 </Card>
                             </motion.div>
@@ -105,7 +105,7 @@ const Contact = () => {
                                     required
                                 />
                                 <div className="flex flex-col gap-1.5">
-                                    <label className="text-gold-light/80 text-sm font-medium ml-1">Message</label>
+                                    <label className="text-gold font-medium ml-1">Message</label>
                                     <textarea
                                         name="message"
                                         rows="5"
@@ -113,7 +113,7 @@ const Contact = () => {
                                         value={formData.message}
                                         onChange={handleChange}
                                         required
-                                        className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all duration-300 resize-none"
+                                        className="bg-mystic-light/50 border border-mystic/10 rounded-xl px-4 py-3 text-mystic placeholder:text-mystic/30 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all duration-300 resize-none"
                                     ></textarea>
                                 </div>
                                 <motion.div

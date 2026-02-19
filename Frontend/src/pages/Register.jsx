@@ -42,11 +42,11 @@ const Register = () => {
                         <Star className="text-gold group-hover:rotate-180 transition-transform duration-500" size={32} fill="currentColor" />
                         <span className="text-3xl font-bold font-outfit gold-text-gradient">Astro.lk</span>
                     </Link>
-                    <h2 className="text-2xl font-bold text-white mb-2">Join the Celestial Circle</h2>
-                    <p className="text-white/50">Start your spiritual journey today.</p>
+                    <h2 className="text-2xl font-bold text-mystic mb-2">Join the Celestial Circle</h2>
+                    <p className="text-mystic/50">Start your spiritual journey today.</p>
                 </div>
 
-                <Card className="p-8 md:p-10 border-gold/10">
+                <Card className="p-8 md:p-10 border-gold/10 bg-white shadow-premium">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Input
@@ -96,10 +96,10 @@ const Register = () => {
                             />
                         </div>
 
-                        <div className="flex items-start gap-3 text-white/40 text-xs mb-4">
+                        <div className="flex items-start gap-3 text-mystic/40 text-xs mb-4">
                             <input type="checkbox" id="terms" required className="mt-1 accent-gold" />
                             <label htmlFor="terms">
-                                I agree to the <a href="#" className="underline text-gold/70 hover:text-gold">Terms of Service</a> and <a href="#" className="underline text-gold/70 hover:text-gold">Privacy Policy</a>.
+                                I agree to the <a href="#" className="underline text-gold/70 hover:text-gold transition-colors">Terms of Service</a> and <a href="#" className="underline text-gold/70 hover:text-gold transition-colors">Privacy Policy</a>.
                             </label>
                         </div>
 
@@ -108,8 +108,8 @@ const Register = () => {
                         </Button>
                     </form>
 
-                    <div className="mt-8 pt-8 border-t border-white/5 text-center">
-                        <p className="text-white/40 text-sm">
+                    <div className="mt-8 pt-8 border-t border-mystic/5 text-center">
+                        <p className="text-mystic/40 text-sm">
                             Already a member?{' '}
                             <Link to="/login" className="text-gold hover:text-gold-light font-bold transition-colors">
                                 Sign In

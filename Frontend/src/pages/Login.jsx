@@ -36,11 +36,11 @@ const Login = () => {
                         <Star className="text-gold group-hover:rotate-180 transition-transform duration-500" size={32} fill="currentColor" />
                         <span className="text-3xl font-bold font-outfit gold-text-gradient">Astro.lk</span>
                     </Link>
-                    <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-                    <p className="text-white/50">Log in to view your personalized horoscope.</p>
+                    <h2 className="text-2xl font-bold text-mystic mb-2">Welcome Back</h2>
+                    <p className="text-mystic/50">Log in to view your personalized horoscope.</p>
                 </div>
 
-                <Card className="p-8 md:p-10 border-gold/10">
+                <Card className="p-8 md:p-10 border-gold/10 bg-white shadow-premium">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <Input
                             label="Email Address"
@@ -62,7 +62,7 @@ const Login = () => {
                                 required
                             />
                             <div className="text-right">
-                                <a href="#" className="text-xs text-gold/60 hover:text-gold">Forgot password?</a>
+                                <a href="#" className="text-xs text-gold/60 hover:text-gold transition-colors">Forgot password?</a>
                             </div>
                         </div>
 
@@ -71,8 +71,8 @@ const Login = () => {
                         </Button>
                     </form>
 
-                    <div className="mt-8 pt-8 border-t border-white/5 text-center">
-                        <p className="text-white/40 text-sm">
+                    <div className="mt-8 pt-8 border-t border-mystic/5 text-center">
+                        <p className="text-mystic/40 text-sm">
                             New to Astro.lk?{' '}
                             <Link to="/register" className="text-gold hover:text-gold-light font-bold transition-colors">
                                 Create an Account
