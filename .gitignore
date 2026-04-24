@@ -1,0 +1,65 @@
+# =========================
+# General
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.env
+.env.*
+*.local
+
+# =========================
+# Frontend (React / Expo / Vite etc.)
+# =========================
+/Frontend/node_modules/
+ /Frontend/.expo/
+ /Frontend/.expo-shared/
+ /Frontend/dist/
+ /Frontend/build/
+ /Frontend/web-build/
+ /Frontend/.cache/
+ /Frontend/npm-debug.log*
+ /Frontend/yarn-debug.log*
+ /Frontend/yarn-error.log*
+ /Frontend/.env
+ /Frontend/.env.*
+
+# =========================
+# Backend (Node.js)
+# =========================
+/Backend/node_modules/
+ /Backend/dist/
+ /Backend/build/
+ /Backend/.env
+ /Backend/.env.*
+ /Backend/npm-debug.log*
+ /Backend/yarn-debug.log*
+ /Backend/yarn-error.log*
+
+# =========================
+# Backend (Python - if used)
+# =========================
+/Backend/__pycache__/
+ /Backend/*.pyc
+ /Backend/*.pyo
+ /Backend/*.pyd
+ /Backend/venv/
+ /Backend/.venv/
+ /Backend/env/
+ /Backend/.env
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS Files
+# =========================
+*.pid
+*.seed
+*.out
+*.err
