@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Star } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Input from '../components/UI/Input';
 import Button from '../components/UI/Button';
+import { registerApi } from '../services/api';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -14,15 +15,32 @@ const Register = () => {
         password: '',
         confirmPassword: ''
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Registration attempt:', formData);
-        alert('Account creation is brewing in the cosmic cauldron. Check back soon!');
+        setError('');
+
+        if (formData.password !== formData.confirmPassword) {
+            return setError('Passwords do not match in this realm.');
+        }
+
+        setLoading(true);
+        try {
+            await registerApi(formData);
+            alert('Your account has been woven into the stars! Please log in.');
+            navigate('/login');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Formation failed. Try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -47,6 +65,11 @@ const Register = () => {
                 </div>
 
                 <Card className="p-8 md:p-10 border-gold/10">
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl">
+                            {error}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Input
@@ -103,8 +126,8 @@ const Register = () => {
                             </label>
                         </div>
 
-                        <Button type="submit" variant="primary" className="w-full py-4 text-lg">
-                            Begin Journey <UserPlus size={20} className="ml-2" />
+                        <Button type="submit" variant="primary" className="w-full py-4 text-lg" disabled={loading}>
+                            {loading ? 'Creating Account...' : 'Begin Journey'} <UserPlus size={20} className="ml-2" />
                         </Button>
                     </form>
 

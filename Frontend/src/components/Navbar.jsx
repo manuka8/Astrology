@@ -1,10 +1,12 @@
+import { Menu, X, Star, User, LogOut, LayoutDashboard } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Star } from 'lucide-react';
 import Button from './UI/Button';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+    const { user, logout } = useAuth();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
@@ -58,12 +60,26 @@ const Navbar = () => {
                         </Link>
                     ))}
                     <div className="flex items-center gap-4 ml-4">
-                        <Link to="/login">
-                            <Button variant="ghost" className="text-sm">Login</Button>
-                        </Link>
-                        <Link to="/register">
-                            <Button variant="primary" className="text-sm py-2 px-6">Register</Button>
-                        </Link>
+                        {!user ? (
+                            <>
+                                <Link to="/login">
+                                    <Button variant="ghost" className="text-sm">Login</Button>
+                                </Link>
+                                <Link to="/register">
+                                    <Button variant="primary" className="text-sm py-2 px-6">Register</Button>
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 text-gold hover:text-white transition-colors">
+                                    {user.role === 'admin' ? <LayoutDashboard size={20} /> : <User size={20} />}
+                                    <span className="text-sm font-bold uppercase tracking-wider">{user.name.split(' ')[0]}</span>
+                                </Link>
+                                <Button variant="ghost" className="text-sm p-2" onClick={logout}>
+                                    <LogOut size={20} />
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -97,12 +113,28 @@ const Navbar = () => {
                                 </Link>
                             ))}
                             <div className="flex flex-col gap-4 mt-2">
-                                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <Button variant="outline" className="w-full">Login</Button>
-                                </Link>
-                                <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <Button variant="primary" className="w-full">Register</Button>
-                                </Link>
+                                {!user ? (
+                                    <>
+                                        <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button variant="outline" className="w-full">Login</Button>
+                                        </Link>
+                                        <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button variant="primary" className="w-full">Register</Button>
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)}>
+                                            <Button variant="outline" className="w-full flex items-center justify-center gap-2">
+                                                {user.role === 'admin' ? <LayoutDashboard size={20} /> : <User size={20} />}
+                                                Dashboard
+                                            </Button>
+                                        </Link>
+                                        <Button variant="ghost" className="w-full flex items-center justify-center gap-2 text-red-400" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>
+                                            <LogOut size={20} /> Logout
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </motion.div>

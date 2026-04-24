@@ -1,22 +1,38 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Star } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Input from '../components/UI/Input';
 import Button from '../components/UI/Button';
+import { loginApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Login attempt:', formData);
-        alert('Login feature is coming soon! Reach out to the stars for patience.');
+        setError('');
+        setLoading(true);
+        try {
+            const { data } = await loginApi(formData);
+            login(data);
+            navigate(data.role === 'admin' ? '/admin' : '/dashboard');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Celestial alignment failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -41,6 +57,11 @@ const Login = () => {
                 </div>
 
                 <Card className="p-8 md:p-10 border-gold/10">
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl">
+                            {error}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <Input
                             label="Email Address"
@@ -66,8 +87,8 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <Button type="submit" variant="primary" className="w-full py-4 text-lg">
-                            Unlock Your Destiny <LogIn size={20} className="ml-2" />
+                        <Button type="submit" variant="primary" className="w-full py-4 text-lg" disabled={loading}>
+                            {loading ? 'Consulting the Stars...' : 'Unlock Your Destiny'} <LogIn size={20} className="ml-2" />
                         </Button>
                     </form>
 

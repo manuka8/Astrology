@@ -1,10 +1,27 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Moon, Sun, Compass, Zap, Eye, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/UI/Button';
 import Card from '../components/UI/Card';
 
+import sign1 from '../assets/sign1.png';
+import sign2 from '../assets/sign2.png';
+import sign3 from '../assets/sign3.png';
+import sign4 from '../assets/sign4.png';
+import sign5 from '../assets/sign5.png';
+import sign6 from '../assets/sign6.png';
+import sign7 from '../assets/sign7.png';
+import sign8 from '../assets/sign8.png';
+import sign9 from '../assets/sign9.png';
+import sign10 from '../assets/sign10.png';
+import sign11 from '../assets/sign11.png';
+import sign12 from '../assets/sign12.png';
 const Home = () => {
+    const { user } = useAuth();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
     const horoscopes = [
         { sign: 'Aries', date: 'Mar 21 - Apr 19', icon: '♈' },
         { sign: 'Taurus', date: 'Apr 20 - May 20', icon: '♉' },
@@ -20,6 +37,33 @@ const Home = () => {
         { title: 'Palm Reading', desc: 'Unveil the secrets written in the palms of your hands with our experts.', icon: <Zap className="text-gold" size={32} /> },
         { title: 'Astrology Consultation', desc: 'One-on-one sessions with world-class spiritual guides.', icon: <Eye className="text-gold" size={32} /> },
     ];
+
+    // Array of zodiac image paths
+    const zodiacImages = [
+        sign1,
+        sign2,
+        sign3,
+        sign4,
+        sign5,
+        sign6,
+        sign7,
+        sign8,
+        sign9,
+        sign10,
+        sign11,
+        sign12,
+    ];
+
+    // Auto-slide effect
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prevIndex) =>
+                prevIndex === zodiacImages.length - 1 ? 0 : prevIndex + 1
+            );
+        }, 2000); // Change image every 3 seconds
+
+        return () => clearInterval(interval);
+    }, [zodiacImages.length]);
 
     return (
         <div className="flex flex-col">
@@ -49,8 +93,14 @@ const Home = () => {
                             Unlock the secrets of the universe with Astro.lk. Get personalized horoscope readings and professional spiritual guidance to navigate your life's journey.
                         </p>
                         <div className="flex flex-wrap gap-4">
-                            <Button variant="primary" className="px-10 py-4 text-lg">Read Horoscope</Button>
-                            <Button variant="outline" className="px-10 py-4 text-lg">Get Consultation</Button>
+                            <Link to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/register'}>
+                                <Button variant="primary" className="px-10 py-4 text-lg">
+                                    {user ? 'View Dashboard' : 'Start Journey'}
+                                </Button>
+                            </Link>
+                            <Link to="/contact">
+                                <Button variant="outline" className="px-10 py-4 text-lg">Get Consultation</Button>
+                            </Link>
                         </div>
                     </motion.div>
 
@@ -60,26 +110,46 @@ const Home = () => {
                         transition={{ duration: 1, ease: "easeOut" }}
                         className="hidden lg:flex justify-center"
                     >
-                        <div className="relative w-[500px] h-[500px]">
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-0 border-2 border-gold/20 rounded-full flex items-center justify-center"
-                            >
-                                <div className="absolute top-0 text-gold/40 text-4xl rotate-0">♈</div>
-                                <div className="absolute right-0 text-gold/40 text-4xl rotate-90">♋</div>
-                                <div className="absolute bottom-0 text-gold/40 text-4xl rotate-180">♎</div>
-                                <div className="absolute left-0 text-gold/40 text-4xl rotate-270">♑</div>
-                            </motion.div>
-                            <div className="absolute inset-10 border border-gold/10 rounded-full animate-spin-slow"></div>
+                        <div className="relative w-[600px] h-[600px]">
+
+                            <div className="absolute inset-15 border border-gold/10 rounded-full animate-spin-slow"></div>
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <motion.div
-                                    animate={{ scale: [1, 1.05, 1] }}
-                                    transition={{ duration: 4, repeat: Infinity }}
-                                    className="w-64 h-64 glass-morphism rounded-full flex items-center justify-center border-gold/30 shadow-gold"
+                                    animate={{ scale: [1, 1.02, 1] }}
+                                    transition={{ duration: 6, repeat: Infinity }}
+                                    className="w-120-120 glass-morphism rounded-full flex items-center justify-center border-gold/30 shadow-gold overflow-hidden"
                                 >
-                                    <Star size={80} className="text-gold" fill="currentColor" />
+                                    <AnimatePresence mode="wait">
+                                        <motion.img
+                                            key={currentImageIndex}
+                                            src={zodiacImages[currentImageIndex]}
+                                            alt={`Zodiac sign ${currentImageIndex + 1}`}
+                                            className="w-full h-full object-cover"
+                                            initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                            exit={{ opacity: 0, scale: 1.2, rotate: 10 }}
+                                            transition={{
+                                                duration: 0.9,
+                                                ease: "easeInOut"
+                                            }}
+                                        />
+                                    </AnimatePresence>
                                 </motion.div>
+                            </div>
+
+                            {/* Decorative dots indicator */}
+                            <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 flex gap-2">
+                                {zodiacImages.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentImageIndex(index)}
+                                        className={`w-6 h-6 rounded-full transition-all duration-300 ${index === currentImageIndex
+                                            ? 'w-6 bg-gold'
+                                            : 'bg-gold/30 hover:bg-gold/50'
+                                            }`}
+                                        aria-label={`Go to slide ${index + 1}`}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </motion.div>
