@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { getMeApi } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -7,25 +8,48 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('astroUser');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        const stored = localStorage.getItem('astroUser');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            setUser(parsed.user || parsed);
+            getMeApi()
+                .then(res => {
+                    const fresh = { ...parsed, user: res.data };
+                    localStorage.setItem('astroUser', JSON.stringify(fresh));
+                    setUser(res.data);
+                })
+                .catch(() => {
+                    localStorage.removeItem('astroUser');
+                    setUser(null);
+                })
+                .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
-    const login = (userData) => {
-        setUser(userData);
-        localStorage.setItem('astroUser', JSON.stringify(userData));
+    const login = (data) => {
+        localStorage.setItem('astroUser', JSON.stringify(data));
+        setUser(data.user || data);
     };
 
     const logout = () => {
-        setUser(null);
         localStorage.removeItem('astroUser');
+        setUser(null);
+    };
+
+    const refreshUser = async () => {
+        try {
+            const res = await getMeApi();
+            const stored = JSON.parse(localStorage.getItem('astroUser') || '{}');
+            const updated = { ...stored, user: res.data };
+            localStorage.setItem('astroUser', JSON.stringify(updated));
+            setUser(res.data);
+        } catch (e) {}
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

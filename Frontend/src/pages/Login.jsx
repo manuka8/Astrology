@@ -1,109 +1,83 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { LogIn, Star } from 'lucide-react';
-import Card from '../components/UI/Card';
-import Input from '../components/UI/Input';
-import Button from '../components/UI/Button';
+import { Star, Eye, EyeOff } from 'lucide-react';
 import { loginApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const Login = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
+export default function Login() {
+    const [form, setForm] = useState({ email: '', password: '' });
+    const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const [error, setError] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
+        setLoading(true); setError('');
         try {
-            const { data } = await loginApi(formData);
+            const { data } = await loginApi(form);
             login(data);
-            navigate(data.role === 'admin' ? '/admin' : '/dashboard');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Celestial alignment failed. Please try again.');
+            navigate(data.user?.role === 'admin' ? '/admin' : '/dashboard');
+        } catch (e) {
+            setError(e.response?.data?.message || 'Login failed');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen pt-32 pb-24 flex items-center justify-center relative overflow-hidden">
-            {/* Background patterns */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gold/5 rounded-full blur-[100px]"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gold/5 rounded-full blur-[100px]"></div>
-
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-md px-6 relative z-10"
-            >
-                <div className="text-center mb-10">
-                    <Link to="/" className="inline-flex items-center gap-2 mb-6 group">
-                        <Star className="text-gold group-hover:rotate-180 transition-transform duration-500" size={32} fill="currentColor" />
-                        <span className="text-3xl font-bold font-outfit gold-text-gradient">Astro.lk</span>
-                    </Link>
-                    <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
-                    <p className="text-white/50">Log in to view your personalized horoscope.</p>
+        <div className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12">
+            <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                    <div className="w-16 h-16 rounded-2xl bg-gold/20 border border-gold/30 flex items-center justify-center mx-auto mb-4">
+                        <Star size={28} className="text-gold" fill="currentColor" />
+                    </div>
+                    <h1 className="text-3xl font-bold font-outfit gold-text-gradient">Welcome Back</h1>
+                    <p className="text-white/50 mt-2 text-sm">Sign in to continue your celestial journey</p>
                 </div>
 
-                <Card className="p-8 md:p-10 border-gold/10">
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl">
-                            {error}
+                <div className="glass-morphism rounded-2xl p-8 border border-white/10">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {error && <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>}
+
+                        <div>
+                            <label className="block text-sm text-white/60 mb-2">Email Address</label>
+                            <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required placeholder="you@example.com"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/40 text-white" />
                         </div>
-                    )}
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <Input
-                            label="Email Address"
-                            name="email"
-                            type="email"
-                            placeholder="your@email.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                        <div className="space-y-1">
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
-                            <div className="text-right">
-                                <a href="#" className="text-xs text-gold/60 hover:text-gold">Forgot password?</a>
+
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm text-white/60">Password</label>
+                                <Link to="/forgot-password" className="text-xs text-gold/70 hover:text-gold transition-colors">Forgot password?</Link>
+                            </div>
+                            <div className="relative">
+                                <input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required placeholder="••••••••"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-gold/40 text-white" />
+                                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
                             </div>
                         </div>
 
-                        <Button type="submit" variant="primary" className="w-full py-4 text-lg" disabled={loading}>
-                            {loading ? 'Consulting the Stars...' : 'Unlock Your Destiny'} <LogIn size={20} className="ml-2" />
-                        </Button>
+                        <button type="submit" disabled={loading}
+                            className="w-full py-3 bg-gold/20 border border-gold/40 text-gold hover:bg-gold/30 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </button>
                     </form>
 
-                    <div className="mt-8 pt-8 border-t border-white/5 text-center">
-                        <p className="text-white/40 text-sm">
-                            New to Astro.lk?{' '}
-                            <Link to="/register" className="text-gold hover:text-gold-light font-bold transition-colors">
-                                Create an Account
-                            </Link>
-                        </p>
+                    <div className="mt-6 text-center text-sm text-white/40">
+                        Don't have an account?{' '}
+                        <Link to="/register" className="text-gold/70 hover:text-gold transition-colors font-medium">Create account</Link>
                     </div>
-                </Card>
-            </motion.div>
+                </div>
+
+                {/* Demo credentials */}
+                <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-white/40 text-center">
+                    Demo Admin: admin@astro.lk / admin123
+                </div>
+            </div>
         </div>
     );
-};
-
-export default Login;
+}

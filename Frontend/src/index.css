@@ -46,3 +46,12 @@ h6 {
   box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
   transition: box-shadow 0.3s ease-in-out;
 }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.5); }
+
+/* Dashboard layout */
+.bg-mystic-dark { background-color: #05060A; }

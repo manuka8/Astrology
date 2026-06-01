@@ -1,65 +1,112 @@
 # =========================
-# General
+# Dependencies
 # =========================
-.DS_Store
-Thumbs.db
+Frontend/node_modules/
+Backend/node_modules/
+
+# =========================
+# Build Outputs
+# =========================
+Frontend/dist/
+Frontend/build/
+Frontend/.next/
+Frontend/out/
+
+Backend/dist/
+Backend/build/
+
+# =========================
+# Environment Files
+# =========================
+Frontend/.env
+Frontend/.env.*
+Backend/.env
+Backend/.env.*
+
+# Keep example env files
+!Frontend/.env.example
+!Backend/.env.example
+
+# =========================
+# Logs
+# =========================
 *.log
-*.env
-.env.*
-*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # =========================
-# Frontend (React / Expo / Vite etc.)
+# Cache
 # =========================
-/Frontend/node_modules/
- /Frontend/.expo/
- /Frontend/.expo-shared/
- /Frontend/dist/
- /Frontend/build/
- /Frontend/web-build/
- /Frontend/.cache/
- /Frontend/npm-debug.log*
- /Frontend/yarn-debug.log*
- /Frontend/yarn-error.log*
- /Frontend/.env
- /Frontend/.env.*
+Frontend/.cache/
+Frontend/.parcel-cache/
+Frontend/.vite/
+
+Backend/.cache/
 
 # =========================
-# Backend (Node.js)
+# Testing
 # =========================
-/Backend/node_modules/
- /Backend/dist/
- /Backend/build/
- /Backend/.env
- /Backend/.env.*
- /Backend/npm-debug.log*
- /Backend/yarn-debug.log*
- /Backend/yarn-error.log*
+coverage/
+Frontend/coverage/
+Backend/coverage/
 
 # =========================
-# Backend (Python - if used)
-# =========================
-/Backend/__pycache__/
- /Backend/*.pyc
- /Backend/*.pyo
- /Backend/*.pyd
- /Backend/venv/
- /Backend/.venv/
- /Backend/env/
- /Backend/.env
-
-# =========================
-# IDE / Editor
+# IDE & Editor Files
 # =========================
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
 # =========================
 # OS Files
 # =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Runtime Files
+# =========================
 *.pid
 *.seed
-*.out
-*.err
+*.pid.lock
+
+# =========================
+# Uploads / Generated Files
+# =========================
+Backend/uploads/
+Backend/temp/
+Backend/tmp/
+
+# =========================
+# Database Files
+# =========================
+*.sqlite
+*.sqlite3
+*.db
+
+# =========================
+# Package Manager
+# =========================
+.pnp
+.pnp.js
+
+# =========================
+# Docker
+# =========================
+.env.docker
+docker-compose.override.yml
+
+# =========================
+# Misc
+# =========================
+*.tgz
+*.gz

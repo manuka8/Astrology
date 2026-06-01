@@ -1,148 +1,95 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Star } from 'lucide-react';
-import Card from '../components/UI/Card';
-import Input from '../components/UI/Input';
-import Button from '../components/UI/Button';
+import { Star, Eye, EyeOff } from 'lucide-react';
 import { registerApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
-const Register = () => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        dob: '',
-        password: '',
-        confirmPassword: ''
-    });
-    const [error, setError] = useState('');
+export default function Register() {
+    const [form, setForm] = useState({ name: '', email: '', password: '', mobile: '', country: '' });
+    const [showPw, setShowPw] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const { login } = useAuth();
     const navigate = useNavigate();
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-
-        if (formData.password !== formData.confirmPassword) {
-            return setError('Passwords do not match in this realm.');
-        }
-
-        setLoading(true);
+        if (form.password.length < 6) { setError('Password must be at least 6 characters'); return; }
+        setLoading(true); setError('');
         try {
-            await registerApi(formData);
-            alert('Your account has been woven into the stars! Please log in.');
-            navigate('/login');
-        } catch (err) {
-            setError(err.response?.data?.message || 'Formation failed. Try again.');
+            const { data } = await registerApi(form);
+            login(data);
+            navigate('/dashboard');
+        } catch (e) {
+            setError(e.response?.data?.message || 'Registration failed');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen pt-32 pb-24 flex items-center justify-center relative overflow-hidden">
-            {/* Background patterns */}
-            <div className="absolute top-10 right-10 w-96 h-96 bg-gold/5 rounded-full blur-[120px]"></div>
-            <div className="absolute bottom-10 left-10 w-96 h-96 bg-gold/5 rounded-full blur-[120px]"></div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-lg px-6 relative z-10"
-            >
-                <div className="text-center mb-10">
-                    <Link to="/" className="inline-flex items-center gap-2 mb-6 group">
-                        <Star className="text-gold group-hover:rotate-180 transition-transform duration-500" size={32} fill="currentColor" />
-                        <span className="text-3xl font-bold font-outfit gold-text-gradient">Astro.lk</span>
-                    </Link>
-                    <h2 className="text-2xl font-bold text-white mb-2">Join the Celestial Circle</h2>
-                    <p className="text-white/50">Start your spiritual journey today.</p>
+        <div className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12">
+            <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                    <div className="w-16 h-16 rounded-2xl bg-gold/20 border border-gold/30 flex items-center justify-center mx-auto mb-4">
+                        <Star size={28} className="text-gold" fill="currentColor" />
+                    </div>
+                    <h1 className="text-3xl font-bold font-outfit gold-text-gradient">Create Account</h1>
+                    <p className="text-white/50 mt-2 text-sm">Begin your celestial journey with Astro.lk</p>
                 </div>
 
-                <Card className="p-8 md:p-10 border-gold/10">
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-500 text-sm rounded-xl">
-                            {error}
-                        </div>
-                    )}
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Input
-                                label="Full Name"
-                                name="name"
-                                placeholder="John Doe"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
-                            />
-                            <Input
-                                label="Date of Birth"
-                                name="dob"
-                                type="date"
-                                value={formData.dob}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-                        <Input
-                            label="Email Address"
-                            name="email"
-                            type="email"
-                            placeholder="your@email.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
-                            <Input
-                                label="Confirm Password"
-                                name="confirmPassword"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
-                            />
+                <div className="glass-morphism rounded-2xl p-8 border border-white/10">
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {error && <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">{error}</div>}
+
+                        <div>
+                            <label className="block text-sm text-white/60 mb-2">Full Name *</label>
+                            <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required placeholder="Your name"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/40 text-white" />
                         </div>
 
-                        <div className="flex items-start gap-3 text-white/40 text-xs mb-4">
-                            <input type="checkbox" id="terms" required className="mt-1 accent-gold" />
-                            <label htmlFor="terms">
-                                I agree to the <a href="#" className="underline text-gold/70 hover:text-gold">Terms of Service</a> and <a href="#" className="underline text-gold/70 hover:text-gold">Privacy Policy</a>.
-                            </label>
+                        <div>
+                            <label className="block text-sm text-white/60 mb-2">Email Address *</label>
+                            <input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required placeholder="you@example.com"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/40 text-white" />
                         </div>
 
-                        <Button type="submit" variant="primary" className="w-full py-4 text-lg" disabled={loading}>
-                            {loading ? 'Creating Account...' : 'Begin Journey'} <UserPlus size={20} className="ml-2" />
-                        </Button>
+                        <div>
+                            <label className="block text-sm text-white/60 mb-2">Password *</label>
+                            <div className="relative">
+                                <input type={showPw ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required placeholder="At least 6 characters"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:border-gold/40 text-white" />
+                                <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                                    {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-sm text-white/60 mb-2">Mobile</label>
+                                <input type="tel" value={form.mobile} onChange={e => setForm({ ...form, mobile: e.target.value })} placeholder="+94 77 123 4567"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/40 text-white" />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-white/60 mb-2">Country</label>
+                                <input type="text" value={form.country} onChange={e => setForm({ ...form, country: e.target.value })} placeholder="Sri Lanka"
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold/40 text-white" />
+                            </div>
+                        </div>
+
+                        <button type="submit" disabled={loading}
+                            className="w-full py-3 bg-gold/20 border border-gold/40 text-gold hover:bg-gold/30 rounded-xl text-sm font-medium transition-all disabled:opacity-50">
+                            {loading ? 'Creating account...' : 'Create Account'}
+                        </button>
                     </form>
 
-                    <div className="mt-8 pt-8 border-t border-white/5 text-center">
-                        <p className="text-white/40 text-sm">
-                            Already a member?{' '}
-                            <Link to="/login" className="text-gold hover:text-gold-light font-bold transition-colors">
-                                Sign In
-                            </Link>
-                        </p>
+                    <div className="mt-6 text-center text-sm text-white/40">
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-gold/70 hover:text-gold transition-colors font-medium">Sign in</Link>
                     </div>
-                </Card>
-            </motion.div>
+                </div>
+            </div>
         </div>
     );
-};
-
-export default Register;
+}

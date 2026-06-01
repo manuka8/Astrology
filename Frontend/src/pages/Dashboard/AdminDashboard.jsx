@@ -1,123 +1,90 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Shield, UserCheck, Trash2, LayoutDashboard } from 'lucide-react';
-import Card from '../../components/UI/Card';
-import Button from '../../components/UI/Button';
-import { getUsersApi, updateUserRoleApi } from '../../services/api';
+import { Users, TrendingUp, CreditCard, GitCompare, Sun, Star, UserCheck, DollarSign } from 'lucide-react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
+import { getStatsApi } from '../../services/api';
 
-const AdminDashboard = () => {
-    const [users, setUsers] = useState([]);
+const Stat = ({ icon: Icon, label, value, color = 'text-gold' }) => (
+    <motion.div whileHover={{ y: -2 }} className="glass-morphism rounded-2xl p-5 border border-white/10">
+        <div className="p-2 bg-white/5 rounded-xl w-fit mb-3"><Icon size={20} className={color} /></div>
+        <p className={`text-2xl font-bold ${color}`}>{value}</p>
+        <p className="text-white/50 text-sm mt-1">{label}</p>
+    </motion.div>
+);
+
+export default function AdminDashboard() {
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchUsers = async () => {
-        try {
-            const { data } = await getUsersApi();
-            setUsers(data);
-        } catch (error) {
-            console.error('Failed to fetch users', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchUsers();
+        getStatsApi().then(r => setStats(r.data)).finally(() => setLoading(false));
     }, []);
 
-    const handleRoleUpdate = async (id, newRole) => {
-        try {
-            await updateUserRoleApi(id, newRole);
-            fetchUsers();
-            alert('Role updated successfully!');
-        } catch (error) {
-            alert('Failed to update role');
-        }
-    };
-
     return (
-        <DashboardLayout>
-            <div className="pt-32 pb-24 px-6 md:px-12 text-white">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex items-center gap-4 mb-12">
-                        <div className="p-3 bg-gold/20 rounded-2xl text-gold">
-                            <LayoutDashboard size={32} />
-                        </div>
-                        <div>
-                            <h1 className="text-4xl font-bold font-outfit gold-text-gradient">Admin Dashboard</h1>
-                            <p className="text-white/50">Manage seekers and destiny controllers.</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
-                        <Card className="p-6 border-gold/10">
-                            <div className="flex items-center gap-4 mb-4">
-                                <Users className="text-gold" size={24} />
-                                <h3 className="font-bold">Total Seekers</h3>
-                            </div>
-                            <p className="text-3xl font-bold">{users.length}</p>
-                        </Card>
-                        <Card className="p-6 border-gold/10">
-                            <div className="flex items-center gap-4 mb-4">
-                                <Shield className="text-gold" size={24} />
-                                <h3 className="font-bold">Admins</h3>
-                            </div>
-                            <p className="text-3xl font-bold">{users.filter(u => u.role === 'admin').length}</p>
-                        </Card>
-                    </div>
-
-                    <Card className="overflow-hidden border-gold/10">
-                        <div className="p-6 border-b border-white/5 bg-white/5">
-                            <h2 className="text-xl font-bold flex items-center gap-2">
-                                User Management
-                            </h2>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-white/5 text-white/60 text-sm uppercase">
-                                    <tr>
-                                        <th className="px-6 py-4">Name</th>
-                                        <th className="px-6 py-4">Email</th>
-                                        <th className="px-6 py-4">Role</th>
-                                        <th className="px-6 py-4 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {loading ? (
-                                        <tr><td colSpan="4" className="text-center py-10">Fetching celestial data...</td></tr>
-                                    ) : (
-                                        users.map((user) => (
-                                            <tr key={user.id} className="hover:bg-white/5 transition-colors">
-                                                <td className="px-6 py-4 font-medium">{user.name}</td>
-                                                <td className="px-6 py-4 text-white/60">{user.email}</td>
-                                                <td className="px-6 py-4">
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.role === 'admin' ? 'bg-gold/20 text-gold' : 'bg-blue-500/20 text-blue-400'}`}>
-                                                        {user.role.toUpperCase()}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        className="p-2 h-auto"
-                                                        onClick={() => handleRoleUpdate(user.id, user.role === 'admin' ? 'user' : 'admin')}
-                                                    >
-                                                        <UserCheck size={16} />
-                                                    </Button>
-                                                    <Button variant="outline" className="p-2 h-auto text-red-400 border-red-400/20 hover:bg-red-400/10">
-                                                        <Trash2 size={16} />
-                                                    </Button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </Card>
+        <DashboardLayout isAdmin>
+            <div className="max-w-7xl mx-auto">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold font-outfit gold-text-gradient">Admin Dashboard</h1>
+                    <p className="text-white/50 text-sm mt-1">Platform overview and analytics</p>
                 </div>
+
+                {loading ? (
+                    <div className="text-center py-16 text-white/30">Loading stats...</div>
+                ) : !stats ? null : (
+                    <>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <Stat icon={Users} label="Total Users" value={stats.totalUsers} color="text-blue-400" />
+                            <Stat icon={UserCheck} label="Active Users" value={stats.activeUsers} color="text-emerald-400" />
+                            <Stat icon={Star} label="Premium Users" value={stats.premiumUsers} color="text-gold" />
+                            <Stat icon={DollarSign} label="Total Revenue" value={`LKR ${(stats.totalRevenue || 0).toLocaleString()}`} color="text-purple-400" />
+                        </div>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            <Stat icon={Sun} label="Predictions" value={stats.totalPredictions} color="text-yellow-400" />
+                            <Stat icon={GitCompare} label="Matches" value={stats.totalMatches} color="text-pink-400" />
+                            <Stat icon={Users} label="Family Members" value={stats.totalMembers} color="text-cyan-400" />
+                            <Stat icon={TrendingUp} label="Free Users" value={stats.freeUsers} color="text-gray-400" />
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div className="glass-morphism rounded-2xl p-6 border border-white/10">
+                                <h2 className="text-lg font-bold mb-4">Plan Distribution</h2>
+                                {stats.planDistribution?.map(p => (
+                                    <div key={p.membership_plan} className="mb-3">
+                                        <div className="flex justify-between text-sm mb-1.5">
+                                            <span className="capitalize text-white/70">{p.membership_plan}</span>
+                                            <span className="text-white font-medium">{p.count}</span>
+                                        </div>
+                                        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                            <div className={`h-full rounded-full ${p.membership_plan === 'platinum' ? 'bg-gold' : p.membership_plan === 'premium' ? 'bg-blue-400' : 'bg-gray-400'}`}
+                                                style={{ width: `${stats.totalUsers ? Math.max(4, (p.count / stats.totalUsers) * 100) : 4}%` }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="glass-morphism rounded-2xl p-6 border border-white/10">
+                                <h2 className="text-lg font-bold mb-4">Recent Users</h2>
+                                <div className="space-y-3">
+                                    {stats.recentUsers?.map(u => (
+                                        <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                                            <div className="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center text-xs font-bold text-gold">
+                                                {u.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{u.name}</p>
+                                                <p className="text-xs text-white/40 truncate">{u.email}</p>
+                                            </div>
+                                            <span className={`text-xs px-2 py-0.5 rounded-full border capitalize ${u.membership_plan === 'platinum' ? 'bg-gold/20 border-gold/40 text-gold' : u.membership_plan === 'premium' ? 'bg-blue-400/20 border-blue-400/40 text-blue-400' : 'bg-gray-500/20 border-gray-500/40 text-gray-400'}`}>
+                                                {u.membership_plan}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </DashboardLayout>
     );
-};
-
-export default AdminDashboard;
+}

@@ -1,138 +1,108 @@
-import { Menu, X, Star, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Star, UserCircle, LogOut, LayoutDashboard, Shield } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import Button from './UI/Button';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
+const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Plans', path: '/plans' },
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
+];
+
+export default function Navbar() {
     const { user, logout } = useAuth();
-    const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        const h = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', h);
+        return () => window.removeEventListener('scroll', h);
     }, []);
 
-    const navLinks = [
-        { name: 'Home', path: '/' },
-        { name: 'About Us', path: '/about' },
-        { name: 'Contact Us', path: '/contact' },
-    ];
+    useEffect(() => { setMobileOpen(false); }, [location]);
+
+    const handleLogout = () => { logout(); navigate('/'); };
 
     return (
-        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-3 bg-mystic-dark/80 backdrop-blur-lg border-b border-gold/20 shadow-lg' : 'py-6 bg-transparent'}`}>
+        <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-3 bg-mystic-dark/80 backdrop-blur-lg border-b border-gold/20 shadow-lg' : 'py-5 bg-transparent'}`}>
             <div className="container mx-auto px-6 flex items-center justify-between">
-                {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 group">
-                    <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="text-gold"
-                    >
-                        <Star size={28} fill="currentColor" />
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: 'linear' }} className="text-gold">
+                        <Star size={24} fill="currentColor" />
                     </motion.div>
-                    <span className="text-2xl font-bold font-outfit gold-text-gradient tracking-wider">
-                        Astro.lk
-                    </span>
+                    <span className="text-xl font-bold font-outfit gold-text-gradient tracking-wider">Astro.lk</span>
                 </Link>
 
-                {/* Desktop Navigation */}
-                <div className="hidden md:flex items-center gap-8">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.path}
-                            to={link.path}
-                            className={`relative text-sm font-medium tracking-wide transition-colors hover:text-gold ${location.pathname === link.path ? 'text-gold' : 'text-white/80'}`}
-                        >
+                {/* Desktop nav */}
+                <div className="hidden md:flex items-center gap-6">
+                    {navLinks.map(link => (
+                        <Link key={link.path} to={link.path}
+                            className={`relative text-sm font-medium tracking-wide transition-colors hover:text-gold ${location.pathname === link.path ? 'text-gold' : 'text-white/70'}`}>
                             {link.name}
                             {location.pathname === link.path && (
-                                <motion.div
-                                    layoutId="underline"
-                                    className="absolute -bottom-1 left-0 w-full h-0.5 bg-gold"
-                                />
+                                <motion.div layoutId="underline" className="absolute -bottom-1 left-0 w-full h-0.5 bg-gold rounded-full" />
                             )}
                         </Link>
                     ))}
-                    <div className="flex items-center gap-4 ml-4">
-                        {!user ? (
-                            <>
-                                <Link to="/login">
-                                    <Button variant="ghost" className="text-sm">Login</Button>
-                                </Link>
-                                <Link to="/register">
-                                    <Button variant="primary" className="text-sm py-2 px-6">Register</Button>
-                                </Link>
-                            </>
-                        ) : (
-                            <>
-                                <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2 text-gold hover:text-white transition-colors">
-                                    {user.role === 'admin' ? <LayoutDashboard size={20} /> : <User size={20} />}
-                                    <span className="text-sm font-bold uppercase tracking-wider">{user.name.split(' ')[0]}</span>
-                                </Link>
-                                <Button variant="ghost" className="text-sm p-2" onClick={logout}>
-                                    <LogOut size={20} />
-                                </Button>
-                            </>
-                        )}
-                    </div>
                 </div>
 
-                {/* Mobile Toggle */}
-                <button
-                    className="md:hidden text-gold p-2"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                {/* Desktop auth */}
+                <div className="hidden md:flex items-center gap-3">
+                    {user ? (
+                        <>
+                            <Link to={user.role === 'admin' ? '/admin' : '/dashboard'}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm text-white/70 hover:text-white hover:bg-white/5 transition-all">
+                                {user.role === 'admin' ? <Shield size={15} className="text-gold" /> : <LayoutDashboard size={15} className="text-gold" />}
+                                {user.role === 'admin' ? 'Admin' : 'Dashboard'}
+                            </Link>
+                            <button onClick={handleLogout}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm text-white/50 hover:text-red-400 hover:bg-red-400/10 transition-all">
+                                <LogOut size={15} /> Logout
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/login" className="text-sm text-white/70 hover:text-white transition-colors px-3 py-1.5 rounded-xl hover:bg-white/5">Sign In</Link>
+                            <Link to="/register" className="text-sm px-4 py-2 bg-gold/20 border border-gold/40 text-gold rounded-xl hover:bg-gold/30 transition-all font-medium">Get Started</Link>
+                        </>
+                    )}
+                </div>
+
+                {/* Mobile toggle */}
+                <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden text-white/70 hover:text-white">
+                    {mobileOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile menu */}
             <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="md:hidden bg-mystic-dark border-b border-gold/10 overflow-hidden"
-                    >
-                        <div className="flex flex-col p-6 gap-6">
-                            {navLinks.map((link) => (
-                                <Link
-                                    key={link.path}
-                                    to={link.path}
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className={`text-lg font-medium ${location.pathname === link.path ? 'text-gold' : 'text-white/80'}`}
-                                >
+                {mobileOpen && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                        className="md:hidden bg-mystic-dark/95 backdrop-blur-lg border-t border-white/10 overflow-hidden">
+                        <div className="container mx-auto px-6 py-4 space-y-2">
+                            {navLinks.map(link => (
+                                <Link key={link.path} to={link.path}
+                                    className={`block py-2.5 text-sm font-medium transition-colors ${location.pathname === link.path ? 'text-gold' : 'text-white/70 hover:text-white'}`}>
                                     {link.name}
                                 </Link>
                             ))}
-                            <div className="flex flex-col gap-4 mt-2">
-                                {!user ? (
+                            <div className="pt-3 border-t border-white/10">
+                                {user ? (
                                     <>
-                                        <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button variant="outline" className="w-full">Login</Button>
+                                        <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} className="block py-2.5 text-sm text-gold font-medium">
+                                            {user.role === 'admin' ? 'Admin Panel' : 'Dashboard'}
                                         </Link>
-                                        <Link to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button variant="primary" className="w-full">Register</Button>
-                                        </Link>
+                                        <button onClick={handleLogout} className="block py-2.5 text-sm text-red-400">Logout</button>
                                     </>
                                 ) : (
                                     <>
-                                        <Link to={user.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button variant="outline" className="w-full flex items-center justify-center gap-2">
-                                                {user.role === 'admin' ? <LayoutDashboard size={20} /> : <User size={20} />}
-                                                Dashboard
-                                            </Button>
-                                        </Link>
-                                        <Button variant="ghost" className="w-full flex items-center justify-center gap-2 text-red-400" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>
-                                            <LogOut size={20} /> Logout
-                                        </Button>
+                                        <Link to="/login" className="block py-2.5 text-sm text-white/70">Sign In</Link>
+                                        <Link to="/register" className="block py-2.5 text-sm text-gold font-medium">Get Started →</Link>
                                     </>
                                 )}
                             </div>
@@ -142,6 +112,4 @@ const Navbar = () => {
             </AnimatePresence>
         </nav>
     );
-};
-
-export default Navbar;
+}
