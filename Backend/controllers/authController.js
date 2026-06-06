@@ -59,10 +59,32 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
     try {
         const user = await db.getAsync(
-            'SELECT id,name,email,mobile,country,profile_photo,role,membership_plan,membership_expiry,created_at FROM users WHERE id=?',
+            'SELECT id,name,email,mobile,country,profile_photo,role,custom_role_id,membership_plan,membership_expiry,created_at FROM users WHERE id=?',
             [req.user.id]
         );
-        res.json(user);
+
+        let permissions = [];
+        let customRoleName = null;
+
+        if (user.role === 'super_admin') {
+            const allPerms = await db.allAsync('SELECT name FROM permissions');
+            permissions = allPerms.map(p => p.name);
+        } else if (user.role === 'admin') {
+            const allPerms = await db.allAsync("SELECT name FROM permissions WHERE name != 'roles.manage'");
+            permissions = allPerms.map(p => p.name);
+        } else if (user.custom_role_id) {
+            const roleInfo = await db.getAsync('SELECT display_name FROM roles WHERE id=?', [user.custom_role_id]);
+            if (roleInfo) customRoleName = roleInfo.display_name;
+            const perms = await db.allAsync(
+                `SELECT p.name FROM permissions p
+                 JOIN role_permissions rp ON rp.permission_id = p.id
+                 WHERE rp.role_id = ?`,
+                [user.custom_role_id]
+            );
+            permissions = perms.map(p => p.name);
+        }
+
+        res.json({ ...user, permissions, custom_role_name: customRoleName });
     } catch (e) {
         res.status(500).json({ message: e.message });
     }

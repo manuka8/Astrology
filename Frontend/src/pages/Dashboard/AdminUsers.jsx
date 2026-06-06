@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Search, Plus, Edit2, Trash2, Shield, ShieldOff, X, Save, Key } from 'lucide-react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import { getUsersApi, updateUserApi, deleteUserApi, createUserApi, resetUserPasswordApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+
+const ROLE_LABELS = { user: 'User', admin: 'Admin', super_admin: 'Super Admin' };
 
 const PLANS = ['free', 'premium', 'platinum'];
 
 export default function AdminUsers() {
+    const { user: currentUser } = useAuth();
     const [data, setData] = useState({ users: [], total: 0 });
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -118,7 +122,14 @@ export default function AdminUsers() {
                                                 {u.membership_plan}
                                             </span>
                                         </td>
-                                        <td className="px-5 py-3 text-sm text-white/60 capitalize">{u.role}</td>
+                                        <td className="px-5 py-3">
+                                            <span className={`text-xs px-2 py-0.5 rounded-full border capitalize
+                                                ${u.role === 'super_admin' ? 'bg-gold/20 border-gold/40 text-gold'
+                                                : u.role === 'admin' ? 'bg-blue-400/20 border-blue-400/40 text-blue-400'
+                                                : 'bg-white/10 border-white/20 text-white/50'}`}>
+                                                {ROLE_LABELS[u.role] || u.role}
+                                            </span>
+                                        </td>
                                         <td className="px-5 py-3">
                                             <span className={`text-xs px-2 py-0.5 rounded-full ${u.is_active ? 'bg-emerald-400/20 text-emerald-400' : 'bg-red-400/20 text-red-400'}`}>
                                                 {u.is_active ? 'Active' : 'Suspended'}
@@ -183,6 +194,7 @@ export default function AdminUsers() {
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-gold/40">
                                                 <option value="user">User</option>
                                                 <option value="admin">Admin</option>
+                                                {currentUser?.role === 'super_admin' && <option value="super_admin">Super Admin</option>}
                                             </select>
                                         </div>
                                         <div>
