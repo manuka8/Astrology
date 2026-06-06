@@ -55,3 +55,21 @@ h6 {
 
 /* Dashboard layout */
 .bg-mystic-dark { background-color: #05060A; }
+
+/* Themed select dropdowns */
+select {
+  background-color: #1A1D2E;
+  color: #ffffff;
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #1A1D2E;
+  color: #ffffff;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #2a2d3e;
+}

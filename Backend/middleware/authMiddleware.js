@@ -33,6 +33,15 @@ const admin = (req, res, next) => {
     }
 };
 
+// Requires expert role
+const isExpert = (req, res, next) => {
+    if (req.user && req.user.role === 'expert') {
+        next();
+    } else {
+        res.status(403).json({ message: 'Expert access required' });
+    }
+};
+
 // Requires super_admin role only
 const superAdmin = (req, res, next) => {
     if (req.user && req.user.role === 'super_admin') {
@@ -64,4 +73,4 @@ const hasPermission = (permissionName) => async (req, res, next) => {
     return res.status(403).json({ message: 'Permission denied' });
 };
 
-module.exports = { protect, admin, superAdmin, hasPermission };
+module.exports = { protect, admin, superAdmin, isExpert, hasPermission };

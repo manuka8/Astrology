@@ -30,6 +30,66 @@ const cleanupExpiredAccounts = async () => {
 
 // ── PUBLIC ────────────────────────────────────────────────────────────────────
 
+// GET /api/experts/browse
+const browseExperts = async (req, res) => {
+    try {
+        const { search = '', specialization = '', language = '', consultation_type = '' } = req.query;
+        let sql = `SELECT u.id, u.name, u.profile_photo as user_photo,
+                   ep.bio, ep.specializations, ep.experience_years, ep.rating, ep.review_count, ep.is_available,
+                   ep.headline, ep.consultation_types, ep.consultation_fee, ep.languages,
+                   ep.profile_photo, ep.profile_banner, ep.public_description, ep.categories
+                   FROM users u
+                   JOIN expert_profiles ep ON ep.user_id = u.id
+                   WHERE u.role='expert' AND u.is_active=1`;
+        const params = [];
+        if (search) { sql += ' AND (u.name LIKE ? OR ep.headline LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
+        sql += ' ORDER BY ep.review_count DESC, ep.rating DESC';
+        let experts = await db.allAsync(sql, params);
+
+        if (specialization) {
+            experts = experts.filter(e => {
+                try { return JSON.parse(e.specializations || '[]').some(s => s.toLowerCase().includes(specialization.toLowerCase())); }
+                catch { return false; }
+            });
+        }
+        if (language) {
+            experts = experts.filter(e => {
+                try { return JSON.parse(e.languages || '[]').some(l => l.toLowerCase().includes(language.toLowerCase())); }
+                catch { return false; }
+            });
+        }
+        if (consultation_type) {
+            experts = experts.filter(e => {
+                try { return JSON.parse(e.consultation_types || '[]').some(t => t.toLowerCase().includes(consultation_type.toLowerCase())); }
+                catch { return false; }
+            });
+        }
+        res.json(experts);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+};
+
+// GET /api/experts/profile/:expertId
+const getExpertPublicProfile = async (req, res) => {
+    try {
+        const expert = await db.getAsync(
+            `SELECT u.id, u.name, u.profile_photo as user_photo,
+             ep.bio, ep.specializations, ep.experience_years, ep.rating, ep.review_count, ep.is_available,
+             ep.headline, ep.consultation_types, ep.consultation_fee, ep.languages,
+             ep.profile_photo, ep.profile_banner, ep.public_description, ep.categories
+             FROM users u
+             JOIN expert_profiles ep ON ep.user_id = u.id
+             WHERE u.id=? AND u.role='expert' AND u.is_active=1`,
+            [req.params.expertId]
+        );
+        if (!expert) return res.status(404).json({ message: 'Expert not found' });
+        res.json(expert);
+    } catch (e) {
+        res.status(500).json({ message: e.message });
+    }
+};
+
 // POST /api/experts/apply  (multipart/form-data)
 const submitApplication = async (req, res) => {
     try {
@@ -195,7 +255,7 @@ const checkStatus = async (req, res) => {
 
 const createRequest = async (req, res) => {
     try {
-        const { member_id, subject_name, subject_birth_date, subject_birth_time, subject_birth_place, review_types, report_types, message } = req.body;
+        const { member_id, subject_name, subject_birth_date, subject_birth_time, subject_birth_place, review_types, report_types, message, assigned_expert_id } = req.body;
         if (!subject_name || !review_types?.length) return res.status(400).json({ message: 'Subject name and at least one review type are required' });
 
         let bDate = subject_birth_date, bTime = subject_birth_time, bPlace = subject_birth_place, sName = subject_name;
@@ -209,11 +269,18 @@ const createRequest = async (req, res) => {
             }
         }
 
+        // Validate chosen expert if provided
+        let expertId = null;
+        if (assigned_expert_id) {
+            const expertUser = await db.getAsync("SELECT id FROM users WHERE id=? AND role='expert' AND is_active=1", [assigned_expert_id]);
+            if (expertUser) expertId = expertUser.id;
+        }
+
         const result = await db.runAsync(
-            `INSERT INTO expert_review_requests (user_id,member_id,subject_name,subject_birth_date,subject_birth_time,subject_birth_place,review_types,report_types,message)
-             VALUES (?,?,?,?,?,?,?,?,?)`,
+            `INSERT INTO expert_review_requests (user_id,member_id,subject_name,subject_birth_date,subject_birth_time,subject_birth_place,review_types,report_types,message,assigned_expert_id)
+             VALUES (?,?,?,?,?,?,?,?,?,?)`,
             [req.user.id, member_id||null, sName, bDate||null, bTime||null, bPlace||null,
-             JSON.stringify(review_types), JSON.stringify(report_types||[]), message||null]
+             JSON.stringify(review_types), JSON.stringify(report_types||[]), message||null, expertId]
         );
         const created = await db.getAsync('SELECT * FROM expert_review_requests WHERE id=?', [result.lastID]);
         res.status(201).json(created);
@@ -270,9 +337,13 @@ const cancelRequest = async (req, res) => {
 
 const getQueue = async (req, res) => {
     try {
+        // Returns unassigned pending requests + requests specifically assigned to this expert
         const requests = await db.allAsync(
             `SELECT r.*, u.name as requester_name FROM expert_review_requests r
-             JOIN users u ON u.id = r.user_id WHERE r.status='pending' ORDER BY r.created_at ASC`
+             JOIN users u ON u.id = r.user_id
+             WHERE r.status='pending' AND (r.assigned_expert_id IS NULL OR r.assigned_expert_id=?)
+             ORDER BY r.assigned_expert_id DESC, r.created_at ASC`,
+            [req.user.id]
         );
         res.json(requests);
     } catch (e) {
@@ -350,17 +421,51 @@ const getMyProfile = async (req, res) => {
 
 const updateMyProfile = async (req, res) => {
     try {
-        const { bio, specializations, experience_years, is_available } = req.body;
-        const existing = await db.getAsync('SELECT id FROM expert_profiles WHERE user_id=?', [req.user.id]);
+        const b = req.body;
+        const files = req.files || {};
+        const photoFile = files.profile_photo ? getFilePath(files.profile_photo[0]) : undefined;
+        const bannerFile = files.profile_banner ? getFilePath(files.profile_banner[0]) : undefined;
+
+        const existing = await db.getAsync('SELECT * FROM expert_profiles WHERE user_id=?', [req.user.id]);
+
+        const arrField = (v) => {
+            if (!v) return null;
+            if (Array.isArray(v)) return JSON.stringify(v);
+            try { JSON.parse(v); return v; } catch { return JSON.stringify([v]); }
+        };
+
+        const data = {
+            bio: b.bio || null,
+            specializations: arrField(b.specializations),
+            experience_years: b.experience_years || 0,
+            is_available: b.is_available !== undefined ? (b.is_available === 'true' || b.is_available === '1' || b.is_available === true ? 1 : 0) : 1,
+            headline: b.headline || null,
+            consultation_types: arrField(b.consultation_types),
+            consultation_fee: b.consultation_fee || null,
+            languages: arrField(b.languages),
+            public_description: b.public_description || null,
+            categories: arrField(b.categories),
+            profile_photo: photoFile !== undefined ? photoFile : (existing?.profile_photo || null),
+            profile_banner: bannerFile !== undefined ? bannerFile : (existing?.profile_banner || null),
+        };
+
         if (existing) {
             await db.runAsync(
-                'UPDATE expert_profiles SET bio=?,specializations=?,experience_years=?,is_available=? WHERE user_id=?',
-                [bio||null, JSON.stringify(specializations||[]), experience_years||0, is_available??1, req.user.id]
+                `UPDATE expert_profiles SET bio=?,specializations=?,experience_years=?,is_available=?,
+                 headline=?,consultation_types=?,consultation_fee=?,languages=?,public_description=?,categories=?,profile_photo=?,profile_banner=?
+                 WHERE user_id=?`,
+                [data.bio, data.specializations, data.experience_years, data.is_available,
+                 data.headline, data.consultation_types, data.consultation_fee, data.languages,
+                 data.public_description, data.categories, data.profile_photo, data.profile_banner,
+                 req.user.id]
             );
         } else {
             await db.runAsync(
-                'INSERT INTO expert_profiles (user_id,bio,specializations,experience_years,is_available) VALUES (?,?,?,?,?)',
-                [req.user.id, bio||null, JSON.stringify(specializations||[]), experience_years||0, is_available??1]
+                `INSERT INTO expert_profiles (user_id,bio,specializations,experience_years,is_available,headline,consultation_types,consultation_fee,languages,public_description,categories,profile_photo,profile_banner)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                [req.user.id, data.bio, data.specializations, data.experience_years, data.is_available,
+                 data.headline, data.consultation_types, data.consultation_fee, data.languages,
+                 data.public_description, data.categories, data.profile_photo, data.profile_banner]
             );
         }
         const updated = await db.getAsync('SELECT * FROM expert_profiles WHERE user_id=?', [req.user.id]);
@@ -520,6 +625,7 @@ const getAllRequests = async (req, res) => {
 };
 
 module.exports = {
+    browseExperts, getExpertPublicProfile,
     submitApplication, checkStatus, loginTempAccount, getTempApplication,
     createRequest, getMyRequests, getMyRequest, cancelRequest,
     getQueue, acceptRequest, submitReview, getMyWork, getMyProfile, updateMyProfile,

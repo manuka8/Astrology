@@ -91,6 +91,10 @@ export const deleteArticleApi = (id) => API.delete(`/articles/${id}`);
 export const submitContactApi = (data) => API.post('/contact', data);
 export const getContactsApi = () => API.get('/contact');
 
+// Expert System — Public discovery
+export const browseExpertsApi = (params) => API.get('/experts/browse', { params });
+export const getExpertPublicProfileApi = (id) => API.get(`/experts/profile/${id}`);
+
 // Expert System — Public
 export const submitExpertApplicationApi = (data) => API.post('/experts/apply', data, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const checkExpertStatusApi = (email) => API.get('/experts/status', { params: { email } });
@@ -109,7 +113,9 @@ export const acceptExpertRequestApi = (id) => API.post(`/experts/requests/${id}/
 export const submitExpertReviewApi = (id, data) => API.put(`/experts/requests/${id}/review`, data);
 export const getMyExpertWorkApi = () => API.get('/experts/my-work');
 export const getMyExpertProfileApi = () => API.get('/experts/my-profile');
-export const updateMyExpertProfileApi = (data) => API.put('/experts/my-profile', data);
+export const updateMyExpertProfileApi = (data) => API.put('/experts/my-profile', data, {
+    headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+});
 
 // Expert System — Admin
 export const getExpertApplicationsApi = (params) => API.get('/experts/applications', { params });

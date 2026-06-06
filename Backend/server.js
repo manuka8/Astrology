@@ -36,6 +36,7 @@ app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/articles', require('./routes/articleRoutes'));
 app.use('/api/contact', require('./routes/contactRoutes'));
 app.use('/api/roles', require('./routes/roleRoutes'));
+app.use('/api/experts', require('./routes/expertRoutes'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 

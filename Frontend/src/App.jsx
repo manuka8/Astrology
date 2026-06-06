@@ -12,6 +12,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Plans from './pages/Plans';
+import BecomeExpert from './pages/BecomeExpert';
+import ApplicationStatus from './pages/ApplicationStatus';
 
 // User Dashboard pages
 import UserDashboard from './pages/Dashboard/UserDashboard';
@@ -24,6 +26,10 @@ import YearlyPredictions from './pages/Dashboard/YearlyPredictions';
 import Subscription from './pages/Dashboard/Subscription';
 import Profile from './pages/Dashboard/Profile';
 import Notifications from './pages/Dashboard/Notifications';
+import ExpertReview from './pages/Dashboard/ExpertReview';
+
+// Expert pages
+import ExpertDashboard from './pages/Expert/ExpertDashboard';
 
 // Admin pages
 import AdminDashboard from './pages/Dashboard/AdminDashboard';
@@ -34,6 +40,7 @@ import AdminNotifications from './pages/Dashboard/AdminNotifications';
 import AdminArticles from './pages/Dashboard/AdminArticles';
 import AdminContacts from './pages/Dashboard/AdminContacts';
 import AdminRoles from './pages/Dashboard/AdminRoles';
+import AdminExperts from './pages/Dashboard/AdminExperts';
 
 const Spinner = () => (
     <div className="min-h-screen flex items-center justify-center bg-mystic">
@@ -41,11 +48,12 @@ const Spinner = () => (
     </div>
 );
 
-const PrivateRoute = ({ children, adminOnly = false, permission = null }) => {
-    const { user, loading, hasPermission, isAdminUser } = useAuth();
+const PrivateRoute = ({ children, adminOnly = false, expertOnly = false, permission = null }) => {
+    const { user, loading, hasPermission, isAdminUser, isExpert } = useAuth();
     if (loading) return <Spinner />;
     if (!user) return <Navigate to="/login" replace />;
     if (adminOnly && !isAdminUser()) return <Navigate to="/dashboard" replace />;
+    if (expertOnly && !isExpert()) return <Navigate to="/dashboard" replace />;
     if (permission && !hasPermission(permission)) return <Navigate to="/admin" replace />;
     return children;
 };
@@ -70,6 +78,8 @@ function App() {
                 <Route path="/login" element={<PublicLayout><Login /></PublicLayout>} />
                 <Route path="/register" element={<PublicLayout><Register /></PublicLayout>} />
                 <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
+                <Route path="/become-expert" element={<BecomeExpert />} />
+                <Route path="/expert-status" element={<ApplicationStatus />} />
 
                 {/* User Dashboard */}
                 <Route path="/dashboard" element={<PrivateRoute><UserDashboard /></PrivateRoute>} />
@@ -82,6 +92,10 @@ function App() {
                 <Route path="/dashboard/subscription" element={<PrivateRoute><Subscription /></PrivateRoute>} />
                 <Route path="/dashboard/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
                 <Route path="/dashboard/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+                <Route path="/dashboard/expert-review" element={<PrivateRoute><ExpertReview /></PrivateRoute>} />
+
+                {/* Expert */}
+                <Route path="/expert" element={<PrivateRoute expertOnly><ExpertDashboard /></PrivateRoute>} />
 
                 {/* Admin */}
                 <Route path="/admin" element={<PrivateRoute adminOnly><AdminDashboard /></PrivateRoute>} />
@@ -92,6 +106,7 @@ function App() {
                 <Route path="/admin/articles" element={<PrivateRoute adminOnly permission="articles.read"><AdminArticles /></PrivateRoute>} />
                 <Route path="/admin/contacts" element={<PrivateRoute adminOnly permission="contacts.read"><AdminContacts /></PrivateRoute>} />
                 <Route path="/admin/roles" element={<PrivateRoute adminOnly permission="roles.manage"><AdminRoles /></PrivateRoute>} />
+                <Route path="/admin/experts" element={<PrivateRoute adminOnly permission="expert.read_intake"><AdminExperts /></PrivateRoute>} />
 
                 {/* Legacy redirects */}
                 <Route path="/profile" element={<Navigate to="/dashboard/profile" replace />} />

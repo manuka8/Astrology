@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Users, BookOpen, GitCompare, Sun, Calendar, Star,
     CreditCard, UserCircle, Bell, LogOut, ChevronLeft, ChevronRight,
-    Shield, FileText, MessageSquare, Zap, KeyRound
+    Shield, FileText, MessageSquare, Zap, KeyRound, Inbox, Award
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -16,8 +16,15 @@ const userMenu = [
     { icon: Sun, label: 'Daily Predictions', path: '/dashboard/predictions/daily' },
     { icon: Calendar, label: 'Monthly Predictions', path: '/dashboard/predictions/monthly' },
     { icon: Star, label: 'Yearly Predictions', path: '/dashboard/predictions/yearly' },
+    { icon: Award, label: 'Expert Review', path: '/dashboard/expert-review' },
     { icon: CreditCard, label: 'Subscription', path: '/dashboard/subscription' },
     { icon: Bell, label: 'Notifications', path: '/dashboard/notifications' },
+    { icon: UserCircle, label: 'Profile', path: '/dashboard/profile' },
+];
+
+const expertMenu = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/expert' },
+    { icon: Inbox, label: 'Request Queue', path: '/expert' },
     { icon: UserCircle, label: 'Profile', path: '/dashboard/profile' },
 ];
 
@@ -31,25 +38,32 @@ const adminMenuItems = [
     { icon: FileText, label: 'Articles', path: '/admin/articles', permission: 'articles.read' },
     { icon: MessageSquare, label: 'Contacts', path: '/admin/contacts', permission: 'contacts.read' },
     { icon: KeyRound, label: 'Role Management', path: '/admin/roles', permission: 'roles.manage' },
+    { icon: Award, label: 'Expert Management', path: '/admin/experts', permission: 'expert.read_intake' },
     { icon: UserCircle, label: 'Profile', path: '/dashboard/profile', permission: null },
 ];
 
-export default function Sidebar({ isAdmin = false }) {
+export default function Sidebar({ isAdmin = false, isExpertView = false }) {
     const [collapsed, setCollapsed] = useState(false);
-    const { user, logout, hasPermission, isAdminUser } = useAuth();
+    const { user, logout, hasPermission, isAdminUser, isExpert } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
     const handleLogout = () => { logout(); navigate('/login'); };
     const planColors = { free: 'text-gray-400', premium: 'text-blue-400', platinum: 'text-gold' };
 
-    const menu = isAdmin
-        ? adminMenuItems.filter(item => item.permission === null || hasPermission(item.permission))
-        : userMenu;
+    let menu;
+    if (isExpertView) {
+        menu = expertMenu;
+    } else if (isAdmin) {
+        menu = adminMenuItems.filter(item => item.permission === null || hasPermission(item.permission));
+    } else {
+        menu = userMenu;
+    }
 
     const adminLabel = user?.role === 'super_admin' ? '⚡ Super Admin' : '⚡ Admin';
     const roleLabel = user?.role === 'super_admin' || user?.role === 'admin'
         ? adminLabel
+        : user?.role === 'expert' ? '🌟 Expert'
         : user?.custom_role_name || user?.role || '';
 
     return (
@@ -66,7 +80,7 @@ export default function Sidebar({ isAdmin = false }) {
                     {!collapsed && (
                         <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                             className="text-lg font-bold font-outfit gold-text-gradient whitespace-nowrap">
-                            {isAdmin ? 'Admin Panel' : 'Astro.lk'}
+                            {isAdmin ? 'Admin Panel' : isExpertView ? 'Expert Hub' : 'Astro.lk'}
                         </motion.span>
                     )}
                 </AnimatePresence>

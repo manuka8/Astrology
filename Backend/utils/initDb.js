@@ -325,6 +325,21 @@ const initDb = async () => {
         console.log('✅ Added custom_role_id column to users table');
     } catch (e) { /* column already exists */ }
 
+    // Migrate: add public-profile fields to expert_profiles
+    const expertProfileCols = [
+        'ALTER TABLE expert_profiles ADD COLUMN headline TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN consultation_types TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN consultation_fee TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN languages TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN profile_photo TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN profile_banner TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN public_description TEXT',
+        'ALTER TABLE expert_profiles ADD COLUMN categories TEXT',
+    ];
+    for (const sql of expertProfileCols) {
+        try { await db.runAsync(sql); } catch (e) { /* column exists */ }
+    }
+
     // Migrate: add comprehensive fields to expert_applications
     const expertAppCols = [
         'ALTER TABLE expert_applications ADD COLUMN display_name TEXT',
