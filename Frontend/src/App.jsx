@@ -33,16 +33,20 @@ import AdminHoroscopes from './pages/Dashboard/AdminHoroscopes';
 import AdminNotifications from './pages/Dashboard/AdminNotifications';
 import AdminArticles from './pages/Dashboard/AdminArticles';
 import AdminContacts from './pages/Dashboard/AdminContacts';
+import AdminRoles from './pages/Dashboard/AdminRoles';
 
-const PrivateRoute = ({ children, adminOnly = false }) => {
-    const { user, loading } = useAuth();
-    if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-mystic">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold"></div>
-        </div>
-    );
+const Spinner = () => (
+    <div className="min-h-screen flex items-center justify-center bg-mystic">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold"></div>
+    </div>
+);
+
+const PrivateRoute = ({ children, adminOnly = false, permission = null }) => {
+    const { user, loading, hasPermission, isAdminUser } = useAuth();
+    if (loading) return <Spinner />;
     if (!user) return <Navigate to="/login" replace />;
-    if (adminOnly && user.role !== 'admin') return <Navigate to="/dashboard" replace />;
+    if (adminOnly && !isAdminUser()) return <Navigate to="/dashboard" replace />;
+    if (permission && !hasPermission(permission)) return <Navigate to="/admin" replace />;
     return children;
 };
 
@@ -81,12 +85,13 @@ function App() {
 
                 {/* Admin */}
                 <Route path="/admin" element={<PrivateRoute adminOnly><AdminDashboard /></PrivateRoute>} />
-                <Route path="/admin/users" element={<PrivateRoute adminOnly><AdminUsers /></PrivateRoute>} />
-                <Route path="/admin/plans" element={<PrivateRoute adminOnly><AdminPlans /></PrivateRoute>} />
-                <Route path="/admin/horoscopes" element={<PrivateRoute adminOnly><AdminHoroscopes /></PrivateRoute>} />
-                <Route path="/admin/notifications" element={<PrivateRoute adminOnly><AdminNotifications /></PrivateRoute>} />
-                <Route path="/admin/articles" element={<PrivateRoute adminOnly><AdminArticles /></PrivateRoute>} />
-                <Route path="/admin/contacts" element={<PrivateRoute adminOnly><AdminContacts /></PrivateRoute>} />
+                <Route path="/admin/users" element={<PrivateRoute adminOnly permission="users.read"><AdminUsers /></PrivateRoute>} />
+                <Route path="/admin/plans" element={<PrivateRoute adminOnly permission="plans.read"><AdminPlans /></PrivateRoute>} />
+                <Route path="/admin/horoscopes" element={<PrivateRoute adminOnly permission="horoscopes.read"><AdminHoroscopes /></PrivateRoute>} />
+                <Route path="/admin/notifications" element={<PrivateRoute adminOnly permission="notifications.read"><AdminNotifications /></PrivateRoute>} />
+                <Route path="/admin/articles" element={<PrivateRoute adminOnly permission="articles.read"><AdminArticles /></PrivateRoute>} />
+                <Route path="/admin/contacts" element={<PrivateRoute adminOnly permission="contacts.read"><AdminContacts /></PrivateRoute>} />
+                <Route path="/admin/roles" element={<PrivateRoute adminOnly permission="roles.manage"><AdminRoles /></PrivateRoute>} />
 
                 {/* Legacy redirects */}
                 <Route path="/profile" element={<Navigate to="/dashboard/profile" replace />} />

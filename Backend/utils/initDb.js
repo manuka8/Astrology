@@ -5,6 +5,31 @@ const initDb = async () => {
     console.log('--- Initializing Database ---');
 
     const schema = [
+        `CREATE TABLE IF NOT EXISTS roles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            display_name TEXT NOT NULL,
+            description TEXT,
+            is_system INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now'))
+        )`,
+
+        `CREATE TABLE IF NOT EXISTS permissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            module TEXT NOT NULL,
+            action TEXT NOT NULL,
+            description TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+        )`,
+
+        `CREATE TABLE IF NOT EXISTS role_permissions (
+            role_id INTEGER NOT NULL,
+            permission_id INTEGER NOT NULL,
+            PRIMARY KEY (role_id, permission_id),
+            FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+            FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+        )`,
         `CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -14,6 +39,7 @@ const initDb = async () => {
             country TEXT,
             profile_photo TEXT,
             role TEXT DEFAULT 'user',
+            custom_role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL,
             membership_plan TEXT DEFAULT 'free',
             membership_expiry TEXT,
             is_active INTEGER DEFAULT 1,
@@ -209,8 +235,93 @@ const initDb = async () => {
         console.log('✅ Membership plans seeded.');
     }
 
+    // Add custom_role_id column to users if it doesn't exist (migration for existing DBs)
+    try {
+        await db.runAsync('ALTER TABLE users ADD COLUMN custom_role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL');
+        console.log('✅ Added custom_role_id column to users table');
+    } catch (e) { /* column already exists */ }
+
+    // Seed permissions
+    const permissionsExist = await db.getAsync('SELECT id FROM permissions LIMIT 1');
+    if (!permissionsExist) {
+        const perms = [
+            { name: 'dashboard.view', module: 'dashboard', action: 'view', description: 'View admin dashboard' },
+            { name: 'users.read', module: 'users', action: 'read', description: 'View users list' },
+            { name: 'users.create', module: 'users', action: 'create', description: 'Create new users' },
+            { name: 'users.edit', module: 'users', action: 'edit', description: 'Edit user details' },
+            { name: 'users.delete', module: 'users', action: 'delete', description: 'Delete users' },
+            { name: 'plans.read', module: 'plans', action: 'read', description: 'View membership plans' },
+            { name: 'plans.create', module: 'plans', action: 'create', description: 'Create membership plans' },
+            { name: 'plans.edit', module: 'plans', action: 'edit', description: 'Edit membership plans' },
+            { name: 'plans.delete', module: 'plans', action: 'delete', description: 'Delete membership plans' },
+            { name: 'horoscopes.read', module: 'horoscopes', action: 'read', description: 'View horoscopes' },
+            { name: 'horoscopes.create', module: 'horoscopes', action: 'create', description: 'Create horoscopes' },
+            { name: 'horoscopes.edit', module: 'horoscopes', action: 'edit', description: 'Edit horoscopes' },
+            { name: 'horoscopes.delete', module: 'horoscopes', action: 'delete', description: 'Delete horoscopes' },
+            { name: 'notifications.read', module: 'notifications', action: 'read', description: 'View notifications' },
+            { name: 'notifications.send', module: 'notifications', action: 'send', description: 'Send broadcast notifications' },
+            { name: 'articles.read', module: 'articles', action: 'read', description: 'View articles' },
+            { name: 'articles.create', module: 'articles', action: 'create', description: 'Create articles' },
+            { name: 'articles.edit', module: 'articles', action: 'edit', description: 'Edit articles' },
+            { name: 'articles.delete', module: 'articles', action: 'delete', description: 'Delete articles' },
+            { name: 'contacts.read', module: 'contacts', action: 'read', description: 'View contact submissions' },
+            { name: 'roles.manage', module: 'roles', action: 'manage', description: 'Manage roles and assign them to users' },
+        ];
+        for (const p of perms) {
+            await db.runAsync(
+                'INSERT INTO permissions (name, module, action, description) VALUES (?,?,?,?)',
+                [p.name, p.module, p.action, p.description]
+            );
+        }
+        console.log('✅ Permissions seeded.');
+
+        // Seed default roles
+        const defaultRoles = [
+            { name: 'admin', display_name: 'Administrator', description: 'Full admin access except role management', is_system: 1 },
+            { name: 'content_manager', display_name: 'Content Manager', description: 'Manage articles, horoscopes, and notifications', is_system: 1 },
+            { name: 'support_staff', display_name: 'Support Staff', description: 'View users and handle contact inquiries', is_system: 1 },
+            { name: 'moderator', display_name: 'Moderator', description: 'Manage articles and contacts', is_system: 1 },
+        ];
+        for (const r of defaultRoles) {
+            await db.runAsync(
+                'INSERT INTO roles (name, display_name, description, is_system) VALUES (?,?,?,?)',
+                [r.name, r.display_name, r.description, r.is_system]
+            );
+        }
+        console.log('✅ Default roles seeded.');
+
+        // Assign permissions to default roles
+        const allPerms = await db.allAsync('SELECT id, name FROM permissions');
+        const permMap = {};
+        for (const p of allPerms) permMap[p.name] = p.id;
+
+        const adminRole = await db.getAsync("SELECT id FROM roles WHERE name='admin'");
+        const contentRole = await db.getAsync("SELECT id FROM roles WHERE name='content_manager'");
+        const supportRole = await db.getAsync("SELECT id FROM roles WHERE name='support_staff'");
+        const modRole = await db.getAsync("SELECT id FROM roles WHERE name='moderator'");
+
+        const adminPerms = Object.keys(permMap).filter(p => p !== 'roles.manage');
+        const contentPerms = ['dashboard.view','horoscopes.read','horoscopes.create','horoscopes.edit','horoscopes.delete','notifications.read','notifications.send','articles.read','articles.create','articles.edit','articles.delete'];
+        const supportPerms = ['dashboard.view','users.read','contacts.read','notifications.read'];
+        const modPerms = ['dashboard.view','articles.read','articles.create','articles.edit','articles.delete','contacts.read'];
+
+        for (const p of adminPerms) {
+            await db.runAsync('INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (?,?)', [adminRole.id, permMap[p]]);
+        }
+        for (const p of contentPerms) {
+            await db.runAsync('INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (?,?)', [contentRole.id, permMap[p]]);
+        }
+        for (const p of supportPerms) {
+            await db.runAsync('INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (?,?)', [supportRole.id, permMap[p]]);
+        }
+        for (const p of modPerms) {
+            await db.runAsync('INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (?,?)', [modRole.id, permMap[p]]);
+        }
+        console.log('✅ Role permissions assigned.');
+    }
+
     // Seed admin
-    const adminExists = await db.getAsync("SELECT id FROM users WHERE role='admin' LIMIT 1");
+    const adminExists = await db.getAsync("SELECT id FROM users WHERE role IN ('admin','super_admin') LIMIT 1");
     if (!adminExists) {
         const hash = await bcrypt.hash('admin123', 10);
         const expiry = new Date();
@@ -218,9 +329,16 @@ const initDb = async () => {
         await db.runAsync(
             `INSERT INTO users (name,email,password,role,membership_plan,membership_expiry,email_verified,is_active)
              VALUES (?,?,?,?,?,?,?,?)`,
-            ['Super Admin', 'admin@astro.lk', hash, 'admin', 'platinum', expiry.toISOString(), 1, 1]
+            ['Super Admin', 'admin@astro.lk', hash, 'super_admin', 'platinum', expiry.toISOString(), 1, 1]
         );
-        console.log('✅ Admin created: admin@astro.lk / admin123');
+        console.log('✅ Super Admin created: admin@astro.lk / admin123');
+    } else {
+        // Upgrade existing 'admin' to 'super_admin' if no super_admin exists yet
+        const superAdminExists = await db.getAsync("SELECT id FROM users WHERE role='super_admin' LIMIT 1");
+        if (!superAdminExists) {
+            await db.runAsync("UPDATE users SET role='super_admin' WHERE role='admin' ORDER BY id LIMIT 1");
+            console.log('✅ Upgraded first admin to super_admin.');
+        }
     }
 
     console.log('--- Database Ready ---');

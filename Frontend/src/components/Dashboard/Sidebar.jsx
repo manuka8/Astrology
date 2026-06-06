@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Users, BookOpen, GitCompare, Sun, Calendar, Star,
     CreditCard, UserCircle, Bell, LogOut, ChevronLeft, ChevronRight,
-    Shield, FileText, MessageSquare, Zap
+    Shield, FileText, MessageSquare, Zap, KeyRound
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,26 +21,36 @@ const userMenu = [
     { icon: UserCircle, label: 'Profile', path: '/dashboard/profile' },
 ];
 
-const adminMenu = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-    { icon: Users, label: 'Users', path: '/admin/users' },
-    { icon: CreditCard, label: 'Plans', path: '/admin/plans' },
-    { icon: BookOpen, label: 'Horoscopes', path: '/admin/horoscopes' },
-    { icon: Bell, label: 'Notifications', path: '/admin/notifications' },
-    { icon: FileText, label: 'Articles', path: '/admin/articles' },
-    { icon: MessageSquare, label: 'Contacts', path: '/admin/contacts' },
-    { icon: UserCircle, label: 'Profile', path: '/dashboard/profile' },
+// Admin menu items with associated permission (null = always visible for any admin user)
+const adminMenuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/admin', permission: null },
+    { icon: Users, label: 'Users', path: '/admin/users', permission: 'users.read' },
+    { icon: CreditCard, label: 'Plans', path: '/admin/plans', permission: 'plans.read' },
+    { icon: BookOpen, label: 'Horoscopes', path: '/admin/horoscopes', permission: 'horoscopes.read' },
+    { icon: Bell, label: 'Notifications', path: '/admin/notifications', permission: 'notifications.read' },
+    { icon: FileText, label: 'Articles', path: '/admin/articles', permission: 'articles.read' },
+    { icon: MessageSquare, label: 'Contacts', path: '/admin/contacts', permission: 'contacts.read' },
+    { icon: KeyRound, label: 'Role Management', path: '/admin/roles', permission: 'roles.manage' },
+    { icon: UserCircle, label: 'Profile', path: '/dashboard/profile', permission: null },
 ];
 
 export default function Sidebar({ isAdmin = false }) {
     const [collapsed, setCollapsed] = useState(false);
-    const { user, logout } = useAuth();
+    const { user, logout, hasPermission, isAdminUser } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const menu = isAdmin ? adminMenu : userMenu;
 
     const handleLogout = () => { logout(); navigate('/login'); };
     const planColors = { free: 'text-gray-400', premium: 'text-blue-400', platinum: 'text-gold' };
+
+    const menu = isAdmin
+        ? adminMenuItems.filter(item => item.permission === null || hasPermission(item.permission))
+        : userMenu;
+
+    const adminLabel = user?.role === 'super_admin' ? '⚡ Super Admin' : '⚡ Admin';
+    const roleLabel = user?.role === 'super_admin' || user?.role === 'admin'
+        ? adminLabel
+        : user?.custom_role_name || user?.role || '';
 
     return (
         <motion.aside
@@ -73,7 +83,7 @@ export default function Sidebar({ isAdmin = false }) {
                         <div className="min-w-0">
                             <p className="text-sm font-medium truncate">{user?.name}</p>
                             <p className={`text-xs capitalize ${planColors[user?.membership_plan] || 'text-gray-400'}`}>
-                                {isAdmin ? '⚡ Admin' : `✦ ${user?.membership_plan}`}
+                                {isAdmin ? roleLabel : `✦ ${user?.membership_plan}`}
                             </p>
                         </div>
                     </div>
@@ -106,7 +116,7 @@ export default function Sidebar({ isAdmin = false }) {
                         {!collapsed && <span className="text-sm">User View</span>}
                     </Link>
                 )}
-                {!isAdmin && user?.role === 'admin' && (
+                {!isAdmin && isAdminUser() && (
                     <Link to="/admin" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/5 transition-all">
                         <Shield size={18} className="flex-shrink-0" />
                         {!collapsed && <span className="text-sm">Admin Panel</span>}

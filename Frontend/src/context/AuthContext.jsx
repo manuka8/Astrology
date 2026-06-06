@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { getMeApi } from '../services/api';
 
 const AuthContext = createContext();
@@ -7,20 +7,24 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const applyUser = (userData) => {
+        setUser(userData);
+    };
+
     useEffect(() => {
         const stored = localStorage.getItem('astroUser');
         if (stored) {
             const parsed = JSON.parse(stored);
-            setUser(parsed.user || parsed);
+            applyUser(parsed.user || parsed);
             getMeApi()
                 .then(res => {
                     const fresh = { ...parsed, user: res.data };
                     localStorage.setItem('astroUser', JSON.stringify(fresh));
-                    setUser(res.data);
+                    applyUser(res.data);
                 })
                 .catch(() => {
                     localStorage.removeItem('astroUser');
-                    setUser(null);
+                    applyUser(null);
                 })
                 .finally(() => setLoading(false));
         } else {
@@ -30,12 +34,12 @@ export const AuthProvider = ({ children }) => {
 
     const login = (data) => {
         localStorage.setItem('astroUser', JSON.stringify(data));
-        setUser(data.user || data);
+        applyUser(data.user || data);
     };
 
     const logout = () => {
         localStorage.removeItem('astroUser');
-        setUser(null);
+        applyUser(null);
     };
 
     const refreshUser = async () => {
@@ -44,12 +48,29 @@ export const AuthProvider = ({ children }) => {
             const stored = JSON.parse(localStorage.getItem('astroUser') || '{}');
             const updated = { ...stored, user: res.data };
             localStorage.setItem('astroUser', JSON.stringify(updated));
-            setUser(res.data);
+            applyUser(res.data);
         } catch (e) {}
     };
 
+    // Returns true if the current user has the given permission.
+    // super_admin always returns true.
+    // admin returns true for everything except 'roles.manage'.
+    // Other users check their permissions array.
+    const hasPermission = useCallback((permission) => {
+        if (!user) return false;
+        if (user.role === 'super_admin') return true;
+        if (user.role === 'admin') return permission !== 'roles.manage';
+        return Array.isArray(user.permissions) && user.permissions.includes(permission);
+    }, [user]);
+
+    // Returns true if user can access the admin panel at all
+    const isAdminUser = useCallback(() => {
+        if (!user) return false;
+        return user.role === 'super_admin' || user.role === 'admin' || !!user.custom_role_id;
+    }, [user]);
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, refreshUser, hasPermission, isAdminUser }}>
             {children}
         </AuthContext.Provider>
     );

@@ -91,4 +91,15 @@ export const deleteArticleApi = (id) => API.delete(`/articles/${id}`);
 export const submitContactApi = (data) => API.post('/contact', data);
 export const getContactsApi = () => API.get('/contact');
 
+// Roles & Permissions
+export const getRolesApi = () => API.get('/roles');
+export const createRoleApi = (data) => API.post('/roles', data);
+export const updateRoleApi = (id, data) => API.put(`/roles/${id}`, data);
+export const deleteRoleApi = (id) => API.delete(`/roles/${id}`);
+export const getPermissionsApi = () => API.get('/roles/permissions');
+export const getRolePermissionsApi = (id) => API.get(`/roles/${id}/permissions`);
+export const setRolePermissionsApi = (id, data) => API.put(`/roles/${id}/permissions`, data);
+export const getUsersWithRolesApi = (params) => API.get('/roles/users/list', { params });
+export const assignUserRoleApi = (userId, data) => API.put(`/roles/assign-user/${userId}`, data);
+
 export default API;
