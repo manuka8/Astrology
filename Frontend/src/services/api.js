@@ -91,6 +91,33 @@ export const deleteArticleApi = (id) => API.delete(`/articles/${id}`);
 export const submitContactApi = (data) => API.post('/contact', data);
 export const getContactsApi = () => API.get('/contact');
 
+// Expert System — Public
+export const submitExpertApplicationApi = (data) => API.post('/experts/apply', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const checkExpertStatusApi = (email) => API.get('/experts/status', { params: { email } });
+export const loginTempAccountApi = (data) => API.post('/experts/temp-login', data);
+export const getTempApplicationApi = (token) => API.get('/experts/temp-application', { params: { token } });
+
+// Expert System — User
+export const createExpertRequestApi = (data) => API.post('/experts/requests', data);
+export const getMyExpertRequestsApi = () => API.get('/experts/requests/my');
+export const getMyExpertRequestApi = (id) => API.get(`/experts/requests/my/${id}`);
+export const cancelExpertRequestApi = (id) => API.delete(`/experts/requests/my/${id}`);
+
+// Expert System — Expert role
+export const getExpertQueueApi = () => API.get('/experts/queue');
+export const acceptExpertRequestApi = (id) => API.post(`/experts/requests/${id}/accept`);
+export const submitExpertReviewApi = (id, data) => API.put(`/experts/requests/${id}/review`, data);
+export const getMyExpertWorkApi = () => API.get('/experts/my-work');
+export const getMyExpertProfileApi = () => API.get('/experts/my-profile');
+export const updateMyExpertProfileApi = (data) => API.put('/experts/my-profile', data);
+
+// Expert System — Admin
+export const getExpertApplicationsApi = (params) => API.get('/experts/applications', { params });
+export const approveExpertApplicationApi = (id) => API.put(`/experts/applications/${id}/approve`);
+export const rejectExpertApplicationApi = (id, data) => API.put(`/experts/applications/${id}/reject`, data);
+export const getExpertsListApi = () => API.get('/experts/list');
+export const getAllExpertRequestsApi = (params) => API.get('/experts/all-requests', { params });
+
 // Roles & Permissions
 export const getRolesApi = () => API.get('/roles');
 export const createRoleApi = (data) => API.post('/roles', data);

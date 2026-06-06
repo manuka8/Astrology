@@ -212,6 +212,90 @@ const initDb = async () => {
             matching_count INTEGER DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         )`,
+
+        `CREATE TABLE IF NOT EXISTS expert_applications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT,
+            bio TEXT,
+            experience_years INTEGER DEFAULT 0,
+            qualifications TEXT,
+            specializations TEXT,
+            portfolio_url TEXT,
+            linkedin_url TEXT,
+            why_join TEXT,
+            status TEXT DEFAULT 'pending',
+            rejection_reason TEXT,
+            linked_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            created_at TEXT DEFAULT (datetime('now'))
+        )`,
+
+        `CREATE TABLE IF NOT EXISTS expert_profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL UNIQUE,
+            bio TEXT,
+            specializations TEXT,
+            experience_years INTEGER DEFAULT 0,
+            rating REAL DEFAULT 0,
+            review_count INTEGER DEFAULT 0,
+            is_available INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )`,
+
+        `CREATE TABLE IF NOT EXISTS expert_review_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            member_id INTEGER,
+            subject_name TEXT NOT NULL,
+            subject_birth_date TEXT,
+            subject_birth_time TEXT,
+            subject_birth_place TEXT,
+            review_types TEXT NOT NULL,
+            report_types TEXT,
+            message TEXT,
+            status TEXT DEFAULT 'pending',
+            assigned_expert_id INTEGER,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (member_id) REFERENCES family_members(id) ON DELETE SET NULL,
+            FOREIGN KEY (assigned_expert_id) REFERENCES users(id) ON DELETE SET NULL
+        )`,
+
+        `CREATE TABLE IF NOT EXISTS expert_reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            request_id INTEGER NOT NULL UNIQUE,
+            expert_id INTEGER NOT NULL,
+            personal_reading TEXT,
+            career_guidance TEXT,
+            relationship_insights TEXT,
+            life_forecasts TEXT,
+            financial_astrology TEXT,
+            health_tendencies TEXT,
+            electional_astrology TEXT,
+            spiritual_growth TEXT,
+            lucky_dates TEXT,
+            summary TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (request_id) REFERENCES expert_review_requests(id) ON DELETE CASCADE,
+            FOREIGN KEY (expert_id) REFERENCES users(id) ON DELETE CASCADE
+        )`,
+
+        `CREATE TABLE IF NOT EXISTS expert_temp_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            application_id INTEGER NOT NULL UNIQUE,
+            email TEXT NOT NULL,
+            access_pin_hash TEXT NOT NULL,
+            access_token TEXT,
+            is_active INTEGER DEFAULT 1,
+            last_login TEXT,
+            account_expires_at TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (application_id) REFERENCES expert_applications(id) ON DELETE CASCADE
+        )`,
     ];
 
     for (const sql of schema) {
@@ -240,6 +324,70 @@ const initDb = async () => {
         await db.runAsync('ALTER TABLE users ADD COLUMN custom_role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL');
         console.log('✅ Added custom_role_id column to users table');
     } catch (e) { /* column already exists */ }
+
+    // Migrate: add comprehensive fields to expert_applications
+    const expertAppCols = [
+        'ALTER TABLE expert_applications ADD COLUMN display_name TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN date_of_birth TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN gender TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN nationality TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN profile_photo TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN address_line1 TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN address_line2 TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN city TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN state_province TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN postal_code TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN country TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN languages_spoken TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN expertise_areas TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN education_level TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN certifications TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN certification_docs TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN training_institute TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN additional_qualifications TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN consultation_types TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN services_offered TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN consultation_fee TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN availability_schedule TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN timezone TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN clients_served INTEGER',
+        'ALTER TABLE expert_applications ADD COLUMN years_practice INTEGER',
+        'ALTER TABLE expert_applications ADD COLUMN sample_reports TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN testimonials TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN social_facebook TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN social_instagram TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN social_twitter TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN social_youtube TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN website_url TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN id_type TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN id_number TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN id_document TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN selfie_photo TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN address_proof TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN bank_name TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN account_holder_name TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN account_number TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN branch_name TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN payment_method TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN tax_id TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN public_display_name TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN public_description TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN headline TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN profile_banner TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN profile_languages TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN consultation_categories TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN agreed_terms INTEGER DEFAULT 0',
+        'ALTER TABLE expert_applications ADD COLUMN agreed_privacy INTEGER DEFAULT 0',
+        'ALTER TABLE expert_applications ADD COLUMN agreed_nda INTEGER DEFAULT 0',
+        'ALTER TABLE expert_applications ADD COLUMN electronic_signature TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN submission_date TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN status_history TEXT',
+        'ALTER TABLE expert_applications ADD COLUMN current_step INTEGER DEFAULT 1',
+        'ALTER TABLE expert_applications ADD COLUMN rejected_at TEXT',
+    ];
+    for (const sql of expertAppCols) {
+        try { await db.runAsync(sql); } catch (e) { /* column already exists */ }
+    }
 
     // Seed permissions
     const permissionsExist = await db.getAsync('SELECT id FROM permissions LIMIT 1');
@@ -320,6 +468,45 @@ const initDb = async () => {
         console.log('✅ Role permissions assigned.');
     }
 
+    // Migrate: add expert permissions if missing (safe to run every startup)
+    const expertPerms = [
+        { name: 'expert.read_intake', module: 'expert', action: 'read_intake', description: 'View expert applications' },
+        { name: 'expert.approve_reject', module: 'expert', action: 'approve_reject', description: 'Approve or reject expert applications' },
+        { name: 'expert.read_requests', module: 'expert', action: 'read_requests', description: 'View and manage user review requests' },
+        { name: 'expert.respond', module: 'expert', action: 'respond', description: 'Submit expert reviews for user requests' },
+    ];
+    for (const p of expertPerms) {
+        await db.runAsync(
+            'INSERT OR IGNORE INTO permissions (name, module, action, description) VALUES (?,?,?,?)',
+            [p.name, p.module, p.action, p.description]
+        );
+    }
+
+    // Migrate: add expert role if missing
+    await db.runAsync(
+        "INSERT OR IGNORE INTO roles (name, display_name, description, is_system) VALUES ('expert','Expert Astrologer','Certified expert who can review and respond to user horoscope requests',1)"
+    );
+
+    // Assign expert.read_requests + expert.respond to expert role
+    const expertRole = await db.getAsync("SELECT id FROM roles WHERE name='expert'");
+    if (expertRole) {
+        const rpPerms = ['expert.read_requests', 'expert.respond'];
+        for (const pname of rpPerms) {
+            const perm = await db.getAsync('SELECT id FROM permissions WHERE name=?', [pname]);
+            if (perm) await db.runAsync('INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (?,?)', [expertRole.id, perm.id]);
+        }
+    }
+
+    // Assign expert.read_intake + expert.approve_reject to admin role
+    const adminRoleRow = await db.getAsync("SELECT id FROM roles WHERE name='admin'");
+    if (adminRoleRow) {
+        const adminExpertPerms = ['expert.read_intake', 'expert.approve_reject'];
+        for (const pname of adminExpertPerms) {
+            const perm = await db.getAsync('SELECT id FROM permissions WHERE name=?', [pname]);
+            if (perm) await db.runAsync('INSERT OR IGNORE INTO role_permissions (role_id, permission_id) VALUES (?,?)', [adminRoleRow.id, perm.id]);
+        }
+    }
+
     // Seed admin
     const adminExists = await db.getAsync("SELECT id FROM users WHERE role IN ('admin','super_admin') LIMIT 1");
     if (!adminExists) {
@@ -336,7 +523,7 @@ const initDb = async () => {
         // Upgrade existing 'admin' to 'super_admin' if no super_admin exists yet
         const superAdminExists = await db.getAsync("SELECT id FROM users WHERE role='super_admin' LIMIT 1");
         if (!superAdminExists) {
-            await db.runAsync("UPDATE users SET role='super_admin' WHERE role='admin' ORDER BY id LIMIT 1");
+            await db.runAsync("UPDATE users SET role='super_admin' WHERE id = (SELECT id FROM users WHERE role='admin' ORDER BY id LIMIT 1)");
             console.log('✅ Upgraded first admin to super_admin.');
         }
     }
