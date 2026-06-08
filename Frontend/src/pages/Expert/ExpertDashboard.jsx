@@ -13,6 +13,7 @@ import {
     getMyExpertWorkApi, getMyExpertProfileApi, updateMyExpertProfileApi,
 } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { serverUrl } from '../../config/server';
 
 const REVIEW_TYPES = [
     { id: 'personal', label: 'Personal Horoscope Reading', icon: Star },
@@ -47,7 +48,7 @@ const CONSULTATION_TYPES = ['Chat', 'Voice Call', 'Video Call', 'Email'];
 const CATEGORIES = ['Vedic', 'Western', 'Chinese', 'Numerology', 'Tarot', 'Vastu', 'Palmistry', 'Face Reading'];
 
 const safeArr = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
-const imgSrc = (path) => path ? `http://localhost:5000${path}` : null;
+const imgSrc = (path) => serverUrl(path);
 
 const CONSULT_ICONS = { Chat: MessageSquare, 'Voice Call': Phone, 'Video Call': Video, Email: Mail };
 

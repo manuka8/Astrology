@@ -12,6 +12,7 @@ import {
     browseExpertsApi, createExpertRequestApi, getMyExpertRequestsApi,
     getMyExpertRequestApi, cancelExpertRequestApi, getMembersApi,
 } from '../../services/api';
+import { serverUrl } from '../../config/server';
 
 const REVIEW_TYPES = [
     { id: 'personal',      label: 'Personal Horoscope Reading',  icon: Star,        desc: 'Birth chart analysis, personality, talents' },
@@ -41,7 +42,7 @@ const CONSULT_ICONS = { Chat: MessageSquare, 'Voice Call': Phone, 'Video Call': 
 
 const safeArr = (v) => { try { return JSON.parse(v || '[]'); } catch { return []; } };
 
-const imgSrc = (path) => path ? `http://localhost:5000${path}` : null;
+const imgSrc = (path) => serverUrl(path);
 
 // ── Expert Card ───────────────────────────────────────────────────────────────
 function ExpertCard({ expert, onClick }) {

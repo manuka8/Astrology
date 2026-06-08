@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Upload, UserCircle, X, Save } from 'lucide-react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import { getMembersApi, createMemberApi, updateMemberApi, deleteMemberApi, uploadMemberHoroscopeApi } from '../../services/api';
+import { serverUrl } from '../../config/server';
 
 const RELATIONSHIPS = ['Self', 'Spouse', 'Father', 'Mother', 'Son', 'Daughter', 'Brother', 'Sister', 'Other'];
 const ZODIAC_SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
@@ -92,7 +93,7 @@ export default function MyMembers() {
                                     <div className="flex items-center gap-3">
                                         <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center overflow-hidden">
                                             {m.profile_photo
-                                                ? <img src={`http://localhost:5000${m.profile_photo}`} alt="" className="w-full h-full object-cover" />
+                                                ? <img src={serverUrl(m.profile_photo)} alt="" className="w-full h-full object-cover" />
                                                 : <span className="text-xl">{ZODIAC_EMOJI[m.zodiac_sign] || '👤'}</span>}
                                         </div>
                                         <div>
@@ -117,7 +118,7 @@ export default function MyMembers() {
                                 </div>
                                 <div className="border-t border-white/10 pt-3 flex items-center justify-between">
                                     {m.horoscope_pdf
-                                        ? <a href={`http://localhost:5000${m.horoscope_pdf}`} target="_blank" rel="noopener noreferrer" className="text-xs text-gold/70 hover:text-gold flex items-center gap-1">
+                                        ? <a href={serverUrl(m.horoscope_pdf)} target="_blank" rel="noopener noreferrer" className="text-xs text-gold/70 hover:text-gold flex items-center gap-1">
                                             <Upload size={12} /> View PDF
                                           </a>
                                         : <span className="text-xs text-white/30">No horoscope PDF</span>

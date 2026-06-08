@@ -7,6 +7,7 @@ import {
     Shield, FileText, MessageSquare, Zap, KeyRound, Inbox, Award
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { serverUrl } from '../../config/server';
 
 const userMenu = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -91,7 +92,7 @@ export default function Sidebar({ isAdmin = false, isExpertView = false }) {
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center overflow-hidden">
                             {user?.profile_photo
-                                ? <img src={`http://localhost:5000${user.profile_photo}`} alt="" className="w-full h-full object-cover" />
+                                ? <img src={serverUrl(user.profile_photo)} alt="" className="w-full h-full object-cover" />
                                 : <UserCircle size={24} className="text-gold" />}
                         </div>
                         <div className="min-w-0">

@@ -3,6 +3,7 @@ import { UserCircle, Save, Camera, Lock } from 'lucide-react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import { updateProfileApi, changePasswordApi } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { serverUrl } from '../../config/server';
 
 export default function Profile() {
     const { user, refreshUser } = useAuth();
@@ -55,7 +56,7 @@ export default function Profile() {
         }
     };
 
-    const avatarSrc = photoPreview || (user?.profile_photo ? `http://localhost:5000${user.profile_photo}` : null);
+    const avatarSrc = photoPreview || serverUrl(user?.profile_photo);
 
     return (
         <DashboardLayout>

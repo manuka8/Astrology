@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, Download } from 'lucide-react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import { getHoroscopesApi } from '../../services/api';
+import { serverUrl } from '../../config/server';
 
 export default function AdminHoroscopes() {
     const [horoscopes, setHoroscopes] = useState([]);
@@ -48,7 +49,7 @@ export default function AdminHoroscopes() {
                                         <td className="px-5 py-3 text-sm text-white/60">{h.birth_place || '—'}</td>
                                         <td className="px-5 py-3">
                                             {h.horoscope_pdf ? (
-                                                <a href={`http://localhost:5000${h.horoscope_pdf}`} target="_blank" rel="noopener noreferrer"
+                                                <a href={serverUrl(h.horoscope_pdf)} target="_blank" rel="noopener noreferrer"
                                                     className="flex items-center gap-1 text-xs text-gold/70 hover:text-gold transition-colors">
                                                     <Download size={12} /> Download
                                                 </a>

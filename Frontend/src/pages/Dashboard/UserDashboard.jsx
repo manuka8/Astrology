@@ -5,6 +5,7 @@ import { Users, BookOpen, GitCompare, Zap, Star, Sun, Calendar, CreditCard, Bell
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import { getMembersApi, getPredictionsApi, getMatchesApi, getPredictionUsageApi, getNotificationsApi } from '../../services/api';
+import { serverUrl } from '../../config/server';
 
 const StatCard = ({ icon: Icon, label, value, color = 'text-gold', to }) => (
     <Link to={to || '#'}>
@@ -48,7 +49,7 @@ export default function UserDashboard() {
                         <div className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-2xl bg-gold/20 border border-gold/30 flex items-center justify-center overflow-hidden">
                                 {user?.profile_photo
-                                    ? <img src={`http://localhost:5000${user.profile_photo}`} alt="" className="w-full h-full object-cover" />
+                                    ? <img src={serverUrl(user.profile_photo)} alt="" className="w-full h-full object-cover" />
                                     : <UserCircle size={36} className="text-gold" />}
                             </div>
                             <div>

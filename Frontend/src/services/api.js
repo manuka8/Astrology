@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { SERVER_URL } from '../config/server';
 
-const API = axios.create({ baseURL: 'http://localhost:5000/api' });
+const API = axios.create({ baseURL: `${SERVER_URL}/api` });
 
 API.interceptors.request.use((req) => {
     const stored = localStorage.getItem('astroUser');

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Edit2, Trash2, Download, X, Save, BookOpen } from 'lucide-react';
 import DashboardLayout from '../../components/Dashboard/DashboardLayout';
 import { getHoroscopesApi, createHoroscopeApi, updateHoroscopeApi, deleteHoroscopeApi, getMembersApi } from '../../services/api';
+import { serverUrl } from '../../config/server';
 
 const ZODIAC_SIGNS = ['Aries', 'Taurus', 'Gemini', 'Cancer', 'Leo', 'Virgo', 'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'];
 const ZODIAC_EMOJI = { Aries: '♈', Taurus: '♉', Gemini: '♊', Cancer: '♋', Leo: '♌', Virgo: '♍', Libra: '♎', Scorpio: '♏', Sagittarius: '♐', Capricorn: '♑', Aquarius: '♒', Pisces: '♓' };
@@ -105,7 +106,7 @@ export default function HoroscopeManagement() {
                                     {h.birth_place && <p>Birth Place: <span className="text-white/70">{h.birth_place}</span></p>}
                                 </div>
                                 {h.horoscope_pdf && (
-                                    <a href={`http://localhost:5000${h.horoscope_pdf}`} target="_blank" rel="noopener noreferrer"
+                                    <a href={serverUrl(h.horoscope_pdf)} target="_blank" rel="noopener noreferrer"
                                         className="flex items-center gap-1 text-xs text-gold/70 hover:text-gold transition-colors">
                                         <Download size={12} /> Download Horoscope PDF
                                     </a>
